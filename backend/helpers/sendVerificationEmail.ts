@@ -1,5 +1,5 @@
-import { resend } from "@/lib/resend";
-import { VerificationEmail} from '@/emails/verificationEmail'
+import { resend } from "@/backend/lib/resend";
+import VerificationEmail from '@/emails/verificationEmail'
 
 import { ApiResponse } from "../types/ApiResponse";
 
@@ -10,10 +10,10 @@ export async function sendVerificationEmail(
 ):Promise<ApiResponse>{
     try {
         await resend.emails.send({
-            from: 'Acme <onboarding@resend.dev>',
+            from: 'invoicegen <onboarding@resend.dev>',
             to: email,
-            subject: 'Mystry message VerificationEmailerificationCode',
-            react: VerificationEmail({username, verifyCode}),
+            subject: 'inovoicegen VerificationCode',
+            react: VerificationEmail({username, otp: verifyCode}),
           });
         return {success: true, message:"verification email send succesfully"}
     } catch (emailError) {
