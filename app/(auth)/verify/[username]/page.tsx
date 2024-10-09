@@ -5,8 +5,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, ArrowLeft } from 'lucide-react'
-import { toast } from "@/hooks/use-toast"
-import { useRouter } from 'next/navigation'
+import { useParams,useRouter } from 'next/navigation'
+import axios, { AxiosError } from 'axios';
+import { useToast } from '@/hooks/use-toast'
+import { ApiResponse } from '@/backend/types/ApiResponse'
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { verifySchema } from '@/backend/schemas/verifySchema'
+
+
 
 export const OTPVerification=() => {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
@@ -15,6 +23,13 @@ export const OTPVerification=() => {
 //   const [countdown, setCountdown] = useState(90)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
   const router = useRouter()
+  
+  const params = useParams<{ username: string }>();
+  const { toast } = useToast()
+  const form = useForm<z.infer<typeof verifySchema>>({
+    resolver: zodResolver(verifySchema),
+  });
+  
 
   useEffect(() => {
     if (resendCooldown > 0) {
@@ -23,20 +38,7 @@ export const OTPVerification=() => {
     }
   }, [resendCooldown])
 
-//   useEffect(() => {
-//     const timer = setInterval(() => {
-//       setCountdown((prevCountdown) => {
-//         if (prevCountdown <= 1) {
-//           clearInterval(timer)
-//           router.push('/login') // Redirect to login page when countdown reaches 0
-//           return 0
-//         }
-//         return prevCountdown - 1
-//       })
-//     }, 1000)
 
-//     return () => clearInterval(timer)
-//   }, [router])
 
   const handleChange = (element: HTMLInputElement, index: number) => {
     if (isNaN(Number(element.value))) return false
@@ -63,24 +65,32 @@ export const OTPVerification=() => {
     setIsVerifying(true)
     const enteredOtp = otp.join('')
     console.log('Verifying OTP:', enteredOtp)
+    try {
+        const response = await axios.post<ApiResponse>(`/api/verify-code`, {
+          username: params.username,
+          code: enteredOtp,
+        });
+  
+        toast({
+          title: 'Success',
+          description: response.data.message,
+        });
+  
+        router.replace('/sign-in');
+      } catch (error) {
+        const axiosError = error as AxiosError<ApiResponse>;
+        toast({
+          title: 'Verification Failed',
+          description:
+            axiosError.response?.data.message ??
+            'An error occurred. Please try again.',
+          variant: 'destructive',
+        });
+      }
+  
     
     setTimeout(() => {
       setIsVerifying(false)
-      if (enteredOtp === '123456') {
-        toast({
-          title: "Success",
-          description: "OTP verified successfully!",
-        })
-        router.push('/dashboard') // Redirect to dashboard on success
-      } else {
-        toast({
-          title: "Error",
-          description: "Incorrect OTP. Please try again.",
-          variant: "destructive",
-        })
-        setOtp(['', '', '', '', '', ''])
-        inputRefs.current[0]?.focus()
-      }
     }, 2000)
   }
 
@@ -100,7 +110,7 @@ export const OTPVerification=() => {
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md relative">
         <Button
           variant="ghost"
-          onClick={() => router.push('/login')}
+          onClick={() => router.push('/sign-in')}
           className="absolute top-4 left-4"
           aria-label="Go back to login"
         >
@@ -155,3 +165,4 @@ export const OTPVerification=() => {
     </div>
   )
 }
+export default OTPVerification;

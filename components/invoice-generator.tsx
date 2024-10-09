@@ -28,9 +28,9 @@ import { Switch } from "@/components/ui/switch"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePDF } from 'react-to-pdf'
-import { toast } from "@/hooks/use-toast"
+import { toast } from "@/hooks/use-toast.ts"
 
-export function InvoiceGeneratorComponentComponent() {
+export function InvoiceGeneratorComponent() {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false)
   const [isClientOpen, setIsClientOpen] = useState(false)
@@ -69,34 +69,11 @@ export function InvoiceGeneratorComponentComponent() {
   const [isItemwiseTax, setIsItemwiseTax] = useState(true)
   const [totalTaxRate, setTotalTaxRate] = useState(18)
   const [invoiceHistory, setInvoiceHistory] = useState([
-    {
-      id: 1,
-      number: 'INV-001',
-      client: { name: 'Client A', email: 'clienta@example.com', gstNumber: '29ABCDE1234F1Z5' },
-      date: '2023-09-15',
-      dueDate: '2023-10-15',
-      amount: 5000,
-      items: [
-        { id: 1, name: 'Item 1', quantity: 2, price: 2000, tax: 5 },
-        { id: 2, name: 'Item 2', quantity: 1, price: 1000, tax: 5 }
-      ],
-      isItemwiseTax: true,
-      totalTaxRate: 5
-    },
-    {
-      id: 2,
-      number: 'INV-002',
-      client: { name: 'Client B', email: 'clientb@example.com', gstNumber: '27FGHIJ5678K2Z3' },
-      date: '2023-09-20',
-      dueDate: '2023-10-20',
-      amount: 7500,
-      items: [
-        { id: 1, name: 'Item 3', quantity: 1, price: 7500, tax: 18 }
-      ],
-      isItemwiseTax: true,
-      totalTaxRate: 18
-    }
+    { id: 1, number: 'INV-001', client: 'Client A', date: '2023-09-15', amount: 5000 },
+    { id: 2, number: 'INV-002', client: 'Client B', date: '2023-09-20', amount: 7500 },
+    { id: 3, number: 'INV-003', client: 'Client C', date: '2023-09-25', amount: 3000 },
   ])
+  // const [isHistoryOpen, setIsHistoryOpen] = useState(false)
 
   const { toPDF, targetRef } = usePDF({filename: 'invoice.pdf'})
 
@@ -250,13 +227,12 @@ export function InvoiceGeneratorComponentComponent() {
     }
 
     const invoiceData = {
-      id: invoiceHistory.length + 1,
-      number: `INV-${Date.now()}`,
       client: isNewClient ? newClient : clients.find(c => c.id.toString() === selectedClientId),
       date: currentDate,
       dueDate: dueDate,
       items: invoiceItems,
-      amount: calculateTotal(),
+      total: calculateTotal(),
+      invoiceNumber: `INV-${Date.now()}`,
       isItemwiseTax: isItemwiseTax,
       totalTaxRate: totalTaxRate
     }
@@ -265,21 +241,22 @@ export function InvoiceGeneratorComponentComponent() {
     setIsInvoicePreviewOpen(true)
     
     // Add the new invoice to the history
-    setInvoiceHistory([invoiceData, ...invoiceHistory])
+    const newHistoryItem = {
+      id: invoiceHistory.length + 1,
+      number: invoiceData.invoiceNumber,
+      client: invoiceData.client.name,
+      date: invoiceData.date,
+      amount: invoiceData.total
+    }
+    setInvoiceHistory([newHistoryItem, ...invoiceHistory])
   }
 
   const handleViewInvoiceHistory = (invoice) => {
-    const fullInvoice = invoiceHistory.find(inv => inv.number === invoice.number);
-    if (fullInvoice) {
-      setCurrentInvoice(fullInvoice);
-      setIsInvoicePreviewOpen(true);
-    } else {
-      toast({
-        title: "Error",
-        description: `Invoice ${invoice.number} not found`,
-        variant: "destructive",
-      });
-    }
+    console.log('Viewing invoice:', invoice)
+    toast({
+      title: "Invoice Details",
+      description: `Viewing details for Invoice ${invoice.number}`,
+    })
   }
 
   const handleLogout = () => {
@@ -307,7 +284,7 @@ export function InvoiceGeneratorComponentComponent() {
             <DropdownMenuContent align="end" className="w-56">
               {invoiceHistory.map((invoice) => (
                 <DropdownMenuItem key={invoice.id} onSelect={() => handleViewInvoiceHistory(invoice)}>
-                  {invoice.number} - {invoice.client.name} (₹{invoice.amount.toFixed(2)})
+                  {invoice.number} - {invoice.client} (₹{invoice.amount.toFixed(2)})
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -698,7 +675,7 @@ export function InvoiceGeneratorComponentComponent() {
                       <Label htmlFor="clientPhone" className="text-right">
                         Phone
                       </Label>
-                      <Input id="clientPhone" name="clientPhone" type="tel" className="col-span-3" />
+                      <Input id="clientPhone" name="clientPhone"type="tel" className="col-span-3" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="clientGstNumber" className="text-right">
@@ -712,16 +689,16 @@ export function InvoiceGeneratorComponentComponent() {
               </Dialog>
               <Dialog open={isManageClientsOpen} onOpenChange={setIsManageClientsOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">Manage Clients</Button>
+                  <Button className="w-full">Edit Clients</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
                     <DialogTitle>Manage Clients</DialogTitle>
                     <DialogDescription>
-                      View, edit, or delete your clients
+                      View and edit your client list
                     </DialogDescription>
                   </DialogHeader>
-                  <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+                  <ScrollArea className="h-[300px] w-full rounded-md border p-4">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -731,23 +708,73 @@ export function InvoiceGeneratorComponentComponent() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {clients.map((client) => (
-                          <TableRow key={client.id}>
-                            <TableCell>{client.name}</TableCell>
-                            <TableCell>{client.email}</TableCell>
-                            <TableCell>
-                              <Button variant="ghost" size="sm" onClick={() => { setEditingClient(client); setIsEditClientOpen(true); }}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm" onClick={() => handleDeleteClient(client.id)}>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        <AnimatePresence>
+                          {clients.map((client) => (
+                            <motion.tr
+                              key={client.id}
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3 }}
+                            >
+                              <TableCell>{client.name}</TableCell>
+                              <TableCell>{client.email}</TableCell>
+                              <TableCell>
+                                <Button variant="ghost" size="sm" onClick={() => {
+                                  setEditingClient(client)
+                                  setIsEditClientOpen(true)
+                                }}>
+                                  Edit
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleDeleteClient(client.id)}>
+                                  Delete
+                                </Button>
+                              </TableCell>
+                            </motion.tr>
+                          ))}
+                        </AnimatePresence>
                       </TableBody>
                     </Table>
                   </ScrollArea>
+                </DialogContent>
+              </Dialog>
+              <Dialog open={isEditClientOpen} onOpenChange={setIsEditClientOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Edit Client</DialogTitle>
+                    <DialogDescription>
+                      Update the details of your client
+                    </DialogDescription>
+                  </DialogHeader>
+                  {editingClient && (
+                    <form onSubmit={handleEditClient} className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="clientName" className="text-right">
+                          Name
+                        </Label>
+                        <Input id="clientName" name="clientName" defaultValue={editingClient.name} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="clientEmail" className="text-right">
+                          Email
+                        </Label>
+                        <Input id="clientEmail" name="clientEmail" type="email" defaultValue={editingClient.email} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="clientPhone" className="text-right">
+                          Phone
+                        </Label>
+                        <Input id="clientPhone" name="clientPhone" type="tel" defaultValue={editingClient.phone} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="clientGstNumber" className="text-right">
+                          GST Number
+                        </Label>
+                        <Input id="clientGstNumber" name="clientGstNumber" defaultValue={editingClient.gstNumber} className="col-span-3" />
+                      </div>
+                      <Button type="submit">Update Client</Button>
+                    </form>
+                  )}
                 </DialogContent>
               </Dialog>
             </CardContent>
@@ -755,7 +782,7 @@ export function InvoiceGeneratorComponentComponent() {
           <Card>
             <CardHeader>
               <CardTitle>Manage Items</CardTitle>
-              <CardDescription>Add or edit item information</CardDescription>
+              <CardDescription>Add or edit items for invoicing</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Dialog open={isItemOpen} onOpenChange={setIsItemOpen}>
@@ -800,187 +827,188 @@ export function InvoiceGeneratorComponentComponent() {
               </Dialog>
               <Dialog open={isManageItemsOpen} onOpenChange={setIsManageItemsOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">Manage Items</Button>
+                  <Button className="w-full">Edit Items</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
                     <DialogTitle>Manage Items</DialogTitle>
                     <DialogDescription>
-                      View, edit, or delete your items
+                      View and edit your item list
                     </DialogDescription>
                   </DialogHeader>
-                  <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+                  <ScrollArea className="h-[300px] w-full rounded-md border p-4">
                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead>Name</TableHead>
                           <TableHead>Price</TableHead>
+                          <TableHead>Tax (%)</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {items.map((item) => (
-                          <TableRow key={item.id}>
-                            <TableCell>{item.name}</TableCell>
-                            <TableCell>₹{item.price.toFixed(2)}</TableCell>
-                            <TableCell>
-                              <Button variant="ghost" size="sm" onClick={() => { setEditingItem(item); setIsEditItemOpen(true); }}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm" onClick={() => handleDeleteItem(item.id)}>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                        <AnimatePresence>
+                          {items.map((item) => (
+                            <motion.tr
+                              key={item.id}
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3 }}
+                            >
+                              <TableCell>{item.name}</TableCell>
+                              <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                              <TableCell>{item.tax}%</TableCell>
+                              <TableCell>
+                                <Button variant="ghost" size="sm" onClick={() => {
+                                  setEditingItem(item)
+                                  setIsEditItemOpen(true)
+                                }}>
+                                  Edit
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleDeleteItem(item.id)}>
+                                  Delete
+                                </Button>
+                              </TableCell>
+                            </motion.tr>
+                          ))}
+                        </AnimatePresence>
                       </TableBody>
                     </Table>
                   </ScrollArea>
                 </DialogContent>
               </Dialog>
+              <Dialog open={isEditItemOpen} onOpenChange={setIsEditItemOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Edit Item</DialogTitle>
+                    <DialogDescription>
+                      Update the details of your item
+                    </DialogDescription>
+                  </DialogHeader>
+                  {editingItem && (
+                    <form onSubmit={handleEditItem} className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="itemName" className="text-right">
+                          Name
+                        </Label>
+                        <Input id="itemName" name="itemName" defaultValue={editingItem.name} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="itemDescription" className="text-right">
+                          Description
+                        </Label>
+                        <Input id="itemDescription" name="itemDescription" defaultValue={editingItem.description} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="itemPrice" className="text-right">
+                          Price
+                        </Label>
+                        <Input id="itemPrice" name="itemPrice" type="number" defaultValue={editingItem.price} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="itemTax" className="text-right">
+                          Tax (%)
+                        </Label>
+                        <Input id="itemTax" name="itemTax" type="number" defaultValue={editingItem.tax} className="col-span-3" />
+                      </div>
+                      <Button type="submit">Update Item</Button>
+                    </form>
+                  )}
+                </DialogContent>
+              </Dialog>
+            </CardContent>
+          </Card>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>Your latest invoices and actions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                <li>Invoice #1234 generated for Client A - ₹5,000.00</li>
+                <li>New client "XYZ Corp" added</li>
+                <li>Invoice #1233 paid by Client B - ₹3,500.00</li>
+                <li>New item "Consulting Service" added to catalog</li>
+              </ul>
             </CardContent>
           </Card>
         </motion.div>
       </main>
-      <Dialog open={isEditClientOpen} onOpenChange={setIsEditClientOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit Client</DialogTitle>
-            <DialogDescription>
-              Update the details of your client
-            </DialogDescription>
-          </DialogHeader>
-          {editingClient && (
-            <form onSubmit={handleEditClient} className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="clientName" className="text-right">
-                  Name
-                </Label>
-                <Input id="clientName" name="clientName" defaultValue={editingClient.name} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="clientEmail" className="text-right">
-                  Email
-                </Label>
-                <Input id="clientEmail" name="clientEmail" type="email" defaultValue={editingClient.email} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="clientPhone" className="text-right">
-                  Phone
-                </Label>
-                <Input id="clientPhone" name="clientPhone" type="tel" defaultValue={editingClient.phone} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="clientGstNumber" className="text-right">
-                  GST Number
-                </Label>
-                <Input id="clientGstNumber" name="clientGstNumber" defaultValue={editingClient.gstNumber} className="col-span-3" />
-              </div>
-              <Button type="submit">Update Client</Button>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
-      <Dialog open={isEditItemOpen} onOpenChange={setIsEditItemOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit Item</DialogTitle>
-            <DialogDescription>
-              Update the details of your item
-            </DialogDescription>
-          </DialogHeader>
-          {editingItem && (
-            <form onSubmit={handleEditItem} className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="itemName" className="text-right">
-                  Name
-                </Label>
-                <Input id="itemName" name="itemName" defaultValue={editingItem.name} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="itemDescription" className="text-right">
-                  Description
-                </Label>
-                <Input id="itemDescription" name="itemDescription" defaultValue={editingItem.description} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="itemPrice" className="text-right">
-                  Price
-                </Label>
-                <Input id="itemPrice" name="itemPrice" type="number" defaultValue={editingItem.price} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="itemTax" className="text-right">
-                  Tax (%)
-                </Label>
-                <Input id="itemTax" name="itemTax" type="number" defaultValue={editingItem.tax} className="col-span-3" />
-              </div>
-              <Button type="submit">Update Item</Button>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
       <Dialog open={isInvoicePreviewOpen} onOpenChange={setIsInvoicePreviewOpen}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle>Invoice Preview</DialogTitle>
             <DialogDescription>
-              Review your invoice before finalizing
+              Review your invoice before saving as PDF
             </DialogDescription>
           </DialogHeader>
-          {currentInvoice && (
-            <div ref={targetRef} className="p-6 bg-white rounded-lg shadow-lg">
-              <div className="flex justify-between mb-8">
+          <div ref={targetRef} className="p-6 bg-white">
+            {currentInvoice ? (
+              <div className="space-y-6">
+                <div className="flex justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold">{businessDetails.name}</h2>
+                    <p>{businessDetails.address}</p>
+                    <p>GST: {businessDetails.gstNumber}</p>
+                  </div>
+                  <div className="text-right">
+                    <h3 className="text-xl font-semibold">Invoice</h3>
+                    <p>Invoice Number: {currentInvoice.invoiceNumber}</p>
+                    <p>Date: {currentInvoice.date}</p>
+                    <p>Due Date: {currentInvoice.dueDate}</p>
+                  </div>
+                </div>
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">{businessDetails.name}</h2>
-                  <p>{businessDetails.address}</p>
-                  <p>GST: {businessDetails.gstNumber}</p>
+                  <h3 className="font-semibold">Bill To:</h3>
+                  <p>{currentInvoice.client.name}</p>
+                  <p>{currentInvoice.client.email}</p>
+                  <p>GST: {currentInvoice.client.gstNumber}</p>
                 </div>
-                <div className="text-right">
-                  <h3 className="text-xl font-semibold mb-2">Invoice</h3>
-                  <p>Invoice #: {currentInvoice.number}</p>
-                  <p>Date: {currentInvoice.date}</p>
-                  <p>Due Date: {currentInvoice.dueDate}</p>
-                </div>
-              </div>
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-2">Bill To:</h3>
-                <p>{currentInvoice.client.name}</p>
-                <p>{currentInvoice.client.email}</p>
-                <p>GST: {currentInvoice.client.gstNumber}</p>
-              </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Item</TableHead>
-                    <TableHead className="text-right">Qty</TableHead>
-                    <TableHead className="text-right">Price</TableHead>
-                    {currentInvoice.isItemwiseTax && <TableHead className="text-right">Tax (%)</TableHead>}
-                    <TableHead className="text-right">Total</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentInvoice.items.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell className="text-right">{item.quantity}</TableCell>
-                      <TableCell className="text-right">₹{item.price.toFixed(2)}</TableCell>
-                      {currentInvoice.isItemwiseTax && <TableCell className="text-right">{item.tax}%</TableCell>}
-                      <TableCell className="text-right">
-                        ₹{((item.quantity * item.price) * (1 + (currentInvoice.isItemwiseTax ? item.tax : currentInvoice.totalTaxRate) / 100)).toFixed(2)}
-                      </TableCell>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Item</TableHead>
+                      <TableHead>Quantity</TableHead>
+                      <TableHead>Price</TableHead>
+                      {currentInvoice.isItemwiseTax && <TableHead>Tax (%)</TableHead>}
+                      <TableHead>Total</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <div className="mt-8 text-right">
-                <p className="text-lg font-semibold">Total: ₹{currentInvoice.amount.toFixed(2)}</p>
+                  </TableHeader>
+                  <TableBody>
+                    {currentInvoice.items.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                        {currentInvoice.isItemwiseTax && <TableCell>{item.tax}%</TableCell>}
+                        <TableCell>
+                          ₹{((item.quantity * item.price) * (1 + (currentInvoice.isItemwiseTax ? item.tax : currentInvoice.totalTaxRate) / 100)).toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <div className="text-right">
+                  <p className="font-semibold">Total: ₹{currentInvoice.total.toFixed(2)}</p>
+                  {!currentInvoice.isItemwiseTax && (
+                    <p>Total Tax Rate: {currentInvoice.totalTaxRate}%</p>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button onClick={() => toPDF()}>Download PDF</Button>
+            ) : (
+              <p>No invoice data available</p>
+            )}
+          </div>
+          <div className="flex justify-end space-x-2">
             <Button onClick={() => setIsInvoicePreviewOpen(false)}>Close</Button>
+            <Button onClick={() => toPDF()}>Save as PDF</Button>
           </div>
         </DialogContent>
       </Dialog>

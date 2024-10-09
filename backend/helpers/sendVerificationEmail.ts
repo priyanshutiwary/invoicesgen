@@ -14,7 +14,7 @@ export async function sendVerificationEmail(
             to: email,
             subject: 'inovoicegen VerificationCode',
             react: VerificationEmail({username, otp: verifyCode}),
-          });
+        });
         return {success: true, message:"verification email send succesfully"}
     } catch (emailError) {
         console.error("error sending verification email", emailError)

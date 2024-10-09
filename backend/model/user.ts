@@ -104,16 +104,16 @@ const ActivitySchema = new Schema({
 }, { timestamps: true }); // Add timestamps
 
 // Create models
-const User = mongoose.model('User', UserSchema);
-const Business = mongoose.model('Business', BusinessSchema);
-const Invoice = mongoose.model('Invoice', InvoiceSchema);
-const Activity = mongoose.model('Activity', ActivitySchema);
+// const User = mongoose.model('User', UserSchema);
+// const Business = mongoose.model('Business', BusinessSchema);
+// const Invoice = mongoose.model('Invoice', InvoiceSchema);
+// const Activity = mongoose.model('Activity', ActivitySchema);
 
 // Export models
-// const User = mongoose.models.User || mongoose.model('User', UserSchema);
-// const Business = mongoose.models.Business || mongoose.model('Business', UserSchema);
-// const Invoice = mongoose.models.Invoice || mongoose.model('Invoice', UserSchema);
-// const Activity = mongoose.models.Activity || mongoose.model('Activity', UserSchema);
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
+const Business = mongoose.models.Business || mongoose.model('Business', BusinessSchema);
+const Invoice = mongoose.models.Invoice || mongoose.model('Invoice', InvoiceSchema);
+const Activity = mongoose.models.Activity || mongoose.model('Activity', ActivitySchema);
 
 
 export {
