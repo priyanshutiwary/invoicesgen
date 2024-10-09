@@ -73,11 +73,8 @@ export default function SignuPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-        <div className="relative"> {/* Added relative positioning to the parent div */}
-          
-          <h1 className="text-3xl font-bold">Sign up for InvoiceGen</h1>
-          <p className="text-gray-500">Create your account to get started</p>
-        </div>
+        <h1 className="text-3xl font-bold">Sign up for InvoiceGen</h1>
+        <p className="text-gray-500">Create your account to get started</p>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>

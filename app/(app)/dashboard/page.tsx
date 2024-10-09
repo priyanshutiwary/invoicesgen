@@ -14,10 +14,14 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { usePDF } from 'react-to-pdf'
 import { toast } from "@/components/ui/use-toast"
 import { signOut } from 'next-auth/react'
-import { useParams } from 'next/navigation'
-export default function Dashboard() {
-  const params = useParams<{ username: string }>();
+import { useSession } from 'next-auth/react'
 
+export default function Dashboard() {
+  
+  const { data: session } = useSession(); // Extract session data
+  const userName = session?.user?.username;
+s  
+  
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false)
   const [isClientOpen, setIsClientOpen] = useState(false)
@@ -175,6 +179,7 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col w-full min-h-screen bg-gray-100">
       <Header 
+        userName={userName}
         businessDetails={businessDetails} 
         invoiceHistory={invoiceHistory} 
         handleViewInvoiceHistory={handleViewInvoiceHistory}
