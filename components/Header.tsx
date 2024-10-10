@@ -44,14 +44,12 @@ interface HeaderProps {
 
 export function Header({ 
   userName, 
-   
+  businessDetails, 
   invoiceHistory, 
   handleViewInvoiceHistory, 
   handleLogout, 
   setIsProfileOpen 
 }: HeaderProps) {
-
-  
 
   return (
     <header className="flex flex-col md:flex-row items-center justify-between h-auto md:h-16 px-4 py-4 md:py-0 border-b bg-white shrink-0 md:px-6">

@@ -35,9 +35,12 @@ interface Client {
 interface Item {
   id: number;
   name: string;
-  description: string;
   price: number;
-  tax: number;
+}
+
+interface InvoiceItem extends Omit<Item, 'id'> {
+  id: string;
+  quantity: number;
 }
 
 // Add this new interface for the Invoice type
@@ -67,7 +70,7 @@ export default function Dashboard() {
   
   const { data: session } = useSession(); // Extract session data
   const userName = session?.user?.username;
-  
+
   
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false)

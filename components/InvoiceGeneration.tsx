@@ -11,7 +11,7 @@ import { Plus, Trash2 } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 
 interface Client {
-  id: number; // Change this from string to number
+  id: number; // This is already correct
   name: string;
   email: string;
   phone: string;
@@ -19,12 +19,13 @@ interface Client {
 }
 
 interface Item {
-  id: string;
+  id: number; // Change this from string to number
   name: string;
   price: number;
 }
 
-interface InvoiceItem extends Item {
+interface InvoiceItem extends Omit<Item, 'id'> {
+  id: string; // Keep this as string for invoice items
   quantity: number;
 }
 
@@ -69,7 +70,7 @@ export function InvoiceGeneration({
 
   const handleAddInvoiceItem = useCallback(() => {
     if (newItem.name && newItem.quantity > 0 && newItem.price > 0) {
-      setInvoiceItems(prev => [...prev, { ...newItem, id: Date.now() }])
+      setInvoiceItems(prev => [...prev, { ...newItem, id: Date.now().toString() }])
       setNewItem({ name: '', quantity: 1, price: 0, tax: 0 })
     }
   }, [newItem, setInvoiceItems])
@@ -92,7 +93,7 @@ export function InvoiceGeneration({
     }, 0)
   }, [invoiceItems, isItemwiseTax, totalTaxRate])
 
-  const handleSelectItem = useCallback((itemId) => {
+  const handleSelectItem = useCallback((itemId: string) => {
     const selectedItem = items.find(item => item.id.toString() === itemId)
     if (selectedItem) {
       setNewItem({ name: selectedItem.name, quantity: 1, price: selectedItem.price, tax: selectedItem.tax })
