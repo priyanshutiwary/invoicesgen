@@ -10,7 +10,55 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Trash2 } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 
-export function InvoiceGeneration({ isInvoiceOpen, setIsInvoiceOpen, invoiceItems, setInvoiceItems, clients, items, setCurrentInvoice, setIsInvoicePreviewOpen }) {
+interface Client {
+  id: number; // Change this from string to number
+  name: string;
+  email: string;
+  phone: string;
+  gstNumber: string;
+}
+
+interface Item {
+  id: string;
+  name: string;
+  price: number;
+}
+
+interface InvoiceItem extends Item {
+  quantity: number;
+}
+
+interface Invoice {
+  // Define the structure of your invoice here
+  // For example:
+  id: string;
+  clientId: string;
+  items: InvoiceItem[];
+  total: number;
+  // Add other necessary fields
+}
+
+interface InvoiceGenerationProps {
+  isInvoiceOpen: boolean;
+  setIsInvoiceOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  invoiceItems: InvoiceItem[];
+  setInvoiceItems: React.Dispatch<React.SetStateAction<InvoiceItem[]>>;
+  clients: Client[];
+  items: Item[];
+  setCurrentInvoice: React.Dispatch<React.SetStateAction<Invoice | null>>;
+  setIsInvoicePreviewOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export function InvoiceGeneration({ 
+  isInvoiceOpen, 
+  setIsInvoiceOpen, 
+  invoiceItems, 
+  setInvoiceItems, 
+  clients, 
+  items, 
+  setCurrentInvoice, 
+  setIsInvoicePreviewOpen 
+}: InvoiceGenerationProps) {
   const [isNewClient, setIsNewClient] = useState(false)
   const [newClient, setNewClient] = useState({ name: '', email: '', phone: '', gstNumber: '' })
   const [selectedClientId, setSelectedClientId] = useState('')
@@ -96,7 +144,7 @@ export function InvoiceGeneration({ isInvoiceOpen, setIsInvoiceOpen, invoiceItem
     const invoiceData = {
       id: Date.now(),
       number: `INV-${Date.now()}`,
-      client: isNewClient ? newClient : clients.find(c => c.id.toString() === selectedClientId),
+      client: isNewClient ? newClient : clients.find(c => c.id === parseInt(selectedClientId)),
       date: currentDate,
       dueDate: dueDate,
       items: invoiceItems,
@@ -107,6 +155,16 @@ export function InvoiceGeneration({ isInvoiceOpen, setIsInvoiceOpen, invoiceItem
     setCurrentInvoice(invoiceData)
     setIsInvoiceOpen(false)
     setIsInvoicePreviewOpen(true)
+
+    // After setting the current invoice and closing the dialog, reset the form fields
+    setIsNewClient(false)
+    setNewClient({ name: '', email: '', phone: '', gstNumber: '' })
+    setSelectedClientId('')
+    setIsItemwiseTax(true)
+    setTotalTaxRate(18)
+    setIsManualEntry(false)
+    setNewItem({ name: '', quantity: 1, price: 0, tax: 0 })
+    setInvoiceItems([]) // Reset the invoice items
   }, [selectedClientId, isNewClient, newClient, invoiceItems, calculateTotal, isItemwiseTax, totalTaxRate, clients, setCurrentInvoice, setIsInvoiceOpen, setIsInvoicePreviewOpen])
 
   return (

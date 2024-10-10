@@ -1,4 +1,4 @@
-// 'use client'
+'use client'
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -21,7 +21,7 @@ class ErrorBoundary extends React.Component {
     this.state = { hasError: false }
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError() {
     return { hasError: true }
   }
 
@@ -92,7 +92,11 @@ export default function SignInForm() {
       }
 
       router.replace('/dashboard')
-    } catch (error) {
+      
+    }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars 
+    catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
@@ -176,7 +180,7 @@ export default function SignInForm() {
                 </form>
 
                 <p className="mt-4 text-center text-sm text-gray-600">
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <Link href="/sign-up" className="text-blue-600 hover:underline font-medium">
                     Sign up
                   </Link>

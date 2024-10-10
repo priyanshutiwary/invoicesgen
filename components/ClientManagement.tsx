@@ -8,7 +8,37 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Edit, Trash2 } from "lucide-react"
 
-export function ClientManagement({ isClientOpen, setIsClientOpen, isManageClientsOpen, setIsManageClientsOpen, clients, handleAddClient, handleDeleteClient, setEditingClient, setIsEditClientOpen }) {
+interface Client {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  gstNumber: string;
+}
+
+interface ClientManagementProps {
+  isClientOpen: boolean;
+  setIsClientOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isManageClientsOpen: boolean;
+  setIsManageClientsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  clients: Client[];
+  handleAddClient: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleDeleteClient: (id: number) => void;
+  setEditingClient: React.Dispatch<React.SetStateAction<Client | null>>;
+  setIsEditClientOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export function ClientManagement({ 
+  isClientOpen, 
+  setIsClientOpen, 
+  isManageClientsOpen, 
+  setIsManageClientsOpen, 
+  clients, 
+  handleAddClient, 
+  handleDeleteClient, 
+  setEditingClient, 
+  setIsEditClientOpen 
+}: ClientManagementProps) {
   return (
     <Card>
       <CardHeader>

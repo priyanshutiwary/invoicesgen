@@ -4,14 +4,34 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 
-export function EditClientDialog({ isEditClientOpen, setIsEditClientOpen, editingClient, handleEditClient }) {
+interface Client {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  gstNumber: string;
+}
+
+interface EditClientDialogProps {
+  isEditClientOpen: boolean;
+  setIsEditClientOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editingClient: Client | null;
+  handleEditClient: (e: React.FormEvent<HTMLFormElement>) => void;
+}
+
+export function EditClientDialog({ 
+  isEditClientOpen, 
+  setIsEditClientOpen, 
+  editingClient, 
+  handleEditClient 
+}: EditClientDialogProps) {
   return (
     <Dialog open={isEditClientOpen} onOpenChange={setIsEditClientOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Client</DialogTitle>
           <DialogDescription>
-            Update the details of your client
+            Make changes to the client information here. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         {editingClient && (
@@ -40,7 +60,7 @@ export function EditClientDialog({ isEditClientOpen, setIsEditClientOpen, editin
               </Label>
               <Input id="clientGstNumber" name="clientGstNumber" defaultValue={editingClient.gstNumber} className="col-span-3" />
             </div>
-            <Button type="submit">Update Client</Button>
+            <Button type="submit">Save Changes</Button>
           </form>
         )}
       </DialogContent>

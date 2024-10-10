@@ -10,10 +10,10 @@ const UserSchema = new Schema({
       required: true,
       unique: true,
       validate: {
-        validator: function(v) {
+        validator: function(v: string) {
           return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || /^\d{10}$/.test(v);
         },
-        message: props => `${props.value} is not a valid email or mobile number!`
+        message: (props: { value: string }) => `${props.value} is not a valid email or mobile number!`
       }
     },
     password: { type: String, required: true },
@@ -37,10 +37,10 @@ const ClientSchema = new Schema({
     type: String,
     required: true,
     validate: {
-      validator: function(v) {
+      validator: function(v: string) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || /^\d{10}$/.test(v);
       },
-      message: props => `${props.value} is not a valid email or mobile number!`
+      message: (props: { value: string }) => `${props.value} is not a valid email or mobile number!`
     }
   },
   gst_number: String
@@ -61,10 +61,10 @@ const BusinessSchema = new Schema({
     type: String,
     required: true,
     validate: {
-      validator: function(v) {
+      validator: function(v: string) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || /^\d{10}$/.test(v);
       },
-      message: props => `${props.value} is not a valid email or mobile number!`
+      message: (props: { value: string }) => `${props.value} is not a valid email or mobile number!`
     }
   },
   address: String,

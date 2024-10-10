@@ -10,7 +10,13 @@ import axios from 'axios' // {{ edit_1 }} Import axios correctly
 import { AxiosError } from 'axios' // {{ edit_3 }} Import AxiosError for error handling
 import { useToast } from '@/hooks/use-toast'
 
-export default function SignuPage() {
+// Define the ApiResponse interface if you have a specific structure
+interface ApiResponse {
+  message: string;
+  // Add other properties as needed
+}
+
+export default function SignUpPage() {
   // const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const {toast} = useToast()
@@ -42,7 +48,7 @@ export default function SignuPage() {
       const axiosError = error as AxiosError<ApiResponse>;
 
       // Default error message
-      let errorMessage = axiosError.response?.data.message || 'There was a problem with your sign-up. Please try again.'; // {{ edit_7 }} Fix error message assignment
+      const errorMessage = axiosError.response?.data.message || 'There was a problem with your sign-up. Please try again.'; // {{ edit_7 }} Fix error message assignment
 
       toast({
         title: 'Sign Up Failed',
@@ -57,9 +63,9 @@ export default function SignuPage() {
     
     
   }
-  const handleBack = () => {
-    router.push('/'); // Navigate to the home page
-  };
+  // const handleBack = () => {
+  //   router.push('/'); // Navigate to the home page
+  // };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
@@ -73,11 +79,8 @@ export default function SignuPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-        <div className="relative"> {/* Added relative positioning to the parent div */}
-          
-          <h1 className="text-3xl font-bold">Sign up for InvoiceGen</h1>
-          <p className="text-gray-500">Create your account to get started</p>
-        </div>
+        <h1 className="text-3xl font-bold">Sign up for InvoiceGen</h1>
+        <p className="text-gray-500">Create your account to get started</p>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>

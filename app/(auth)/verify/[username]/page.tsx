@@ -3,20 +3,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Loader2, ArrowLeft } from 'lucide-react'
 import { useParams,useRouter } from 'next/navigation'
 import axios, { AxiosError } from 'axios';
 import { useToast } from '@/hooks/use-toast'
 import { ApiResponse } from '@/backend/types/ApiResponse'
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { verifySchema } from '@/backend/schemas/verifySchema'
 
-
-
-export const OTPVerification=() => {
+const OTPVerification = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [isVerifying, setIsVerifying] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
@@ -26,9 +19,7 @@ export const OTPVerification=() => {
   
   const params = useParams<{ username: string }>();
   const { toast } = useToast()
-  const form = useForm<z.infer<typeof verifySchema>>({
-    resolver: zodResolver(verifySchema),
-  });
+  
   
 
   useEffect(() => {
@@ -119,7 +110,7 @@ export const OTPVerification=() => {
         </Button>
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold">Verify Your Account</h1>
-          <p className="text-gray-500">We've sent a code to your email. Please enter it below.</p>
+          <p className="text-gray-500">We&apos;ve sent a code to your email. Please enter it below.</p>
           {/* <p className="text-sm text-gray-400">Time remaining: {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}</p> */}
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -132,9 +123,11 @@ export const OTPVerification=() => {
                 autoComplete="one-time-code"
                 maxLength={1}
                 value={data}
-                onChange={(e) => handleChange(e.target, index)}
+                onChange={(e) => handleChange(e.target as HTMLInputElement, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                ref={(el) => inputRefs.current[index] = el}
+                ref={(el) => {
+                  inputRefs.current[index] = el;
+                }}
                 className="w-12 h-12 text-center text-2xl"
                 aria-label={`Digit ${index + 1}`}
               />
@@ -165,4 +158,6 @@ export const OTPVerification=() => {
     </div>
   )
 }
+
+// Only export the component as default
 export default OTPVerification;

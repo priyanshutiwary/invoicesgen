@@ -23,7 +23,7 @@ export async function GET(request: Request) {
         console.log(result)
         if (!result.success){
             const usernameErrors = result.error.format().
-            username?.errors || []
+            username?._errors || []
             return Response.json({
                 success: false,
                 message: usernameErrors?.length > 0

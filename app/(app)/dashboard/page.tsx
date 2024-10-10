@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, ChangeEvent, FormEvent } from 'react'
 import { Header } from '@/components/Header'
 import { DashboardCards } from '@/components/DashboardCards'
 import { InvoiceGeneration } from '@/components/InvoiceGeneration'
@@ -10,14 +10,65 @@ import { BusinessProfile } from '@/components/BusinessProfile'
 import { InvoicePreview } from '@/components/InvoicePreview'
 import { EditClientDialog } from '@/components/EditClientDialog'
 import { EditItemDialog } from '@/components/EditItemDialog'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
+// import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { usePDF } from 'react-to-pdf'
 import { toast } from "@/components/ui/use-toast"
 import { signOut } from 'next-auth/react'
-import { useParams } from 'next/navigation'
-export default function Dashboard() {
-  const params = useParams<{ username: string }>();
+import { useSession } from 'next-auth/react'
 
+interface BusinessDetails {
+  name: string;
+  email: string;
+  address: string;
+  description: string;
+  gstNumber: string;
+}
+
+interface Client {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  gstNumber: string;
+}
+
+interface Item {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  tax: number;
+}
+
+// Add this new interface for the Invoice type
+interface Invoice {
+  id: number;
+  number: string;
+  client: {
+    name: string;
+    email: string;
+    gstNumber: string;
+  };
+  date: string;
+  dueDate: string;
+  amount: number;
+  items: {
+    id: number;
+    name: string;
+    quantity: number;
+    price: number;
+    tax: number;
+  }[];
+  isItemwiseTax: boolean;
+  totalTaxRate: number;
+}
+
+export default function Dashboard() {
+  
+  const { data: session } = useSession(); // Extract session data
+  const userName = session?.user?.username;
+  
+  
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false)
   const [isClientOpen, setIsClientOpen] = useState(false)
@@ -26,7 +77,7 @@ export default function Dashboard() {
   const [isEditItemOpen, setIsEditItemOpen] = useState(false)
   const [isManageClientsOpen, setIsManageClientsOpen] = useState(false)
   const [isManageItemsOpen, setIsManageItemsOpen] = useState(false)
-  const [businessDetails, setBusinessDetails] = useState({
+  const [businessDetails, setBusinessDetails] = useState<BusinessDetails>({
     name: "Acme Corp",
     email: "info@acmecorp.com",
     address: "123 Business St, City, Country",
@@ -34,20 +85,21 @@ export default function Dashboard() {
     gstNumber: "27AADCB2230M1Z3"
   })
   const [invoiceItems, setInvoiceItems] = useState([])
-  const [clients, setClients] = useState([
+  const [clients, setClients] = useState<Client[]>([
     { id: 1, name: "Client A", email: "clienta@example.com", phone: "1234567890", gstNumber: "29ABCDE1234F1Z5" },
     { id: 2, name: "Client B", email: "clientb@example.com", phone: "0987654321", gstNumber: "27FGHIJ5678K2Z3" }
   ])
-  const [editingClient, setEditingClient] = useState(null)
-  const [items, setItems] = useState([
+  const [editingClient, setEditingClient] = useState<Client | null>(null)
+  const [items, setItems] = useState<Item[]>([
     { id: 1, name: "Item 1", description: "Description for Item 1", price: 100, tax: 5 },
     { id: 2, name: "Item 2", description: "Description for Item 2", price: 200, tax: 10 },
     { id: 3, name: "Item 3", description: "Description for Item 3", price: 300, tax: 18 }
   ])
-  const [editingItem, setEditingItem] = useState(null)
-  const [currentInvoice, setCurrentInvoice] = useState(null)
+  const [editingItem, setEditingItem] = useState<Item | null>(null)
+  const [currentInvoice, setCurrentInvoice] = useState<Invoice | null>(null)
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false)
-  const [invoiceHistory, setInvoiceHistory] = useState([
+  // Update the invoiceHistory state to use the Invoice type
+  const [invoiceHistory] = useState<Invoice[]>([
     {
       id: 1,
       number: 'INV-001',
@@ -79,7 +131,7 @@ export default function Dashboard() {
 
   const { toPDF, targetRef } = usePDF({filename: 'invoice.pdf'})
 
-  const handleBusinessDetailsChange = useCallback((e) => {
+  const handleBusinessDetailsChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setBusinessDetails(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }, [])
 
@@ -87,73 +139,76 @@ export default function Dashboard() {
     console.log("Saving business details:", businessDetails)
   }, [businessDetails])
 
-  const handleAddClient = useCallback((e) => {
+  const handleAddClient = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    const newClient = {
+    const newClient: Client = {
       id: Date.now(),
-      name: formData.get('clientName'),
-      email: formData.get('clientEmail'),
-      phone: formData.get('clientPhone'),
-      gstNumber: formData.get('clientGstNumber')
+      name: formData.get('clientName') as string,
+      email: formData.get('clientEmail') as string,
+      phone: formData.get('clientPhone') as string,
+      gstNumber: formData.get('clientGstNumber') as string
     }
     setClients(prev => [...prev, newClient])
     setIsClientOpen(false)
   }, [])
 
-  const handleEditClient = useCallback((e) => {
+  const handleEditClient = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!editingClient) return
     const formData = new FormData(e.currentTarget)
-    const updatedClient = {
+    const updatedClient: Client = {
       id: editingClient.id,
-      name: formData.get('clientName'),
-      email: formData.get('clientEmail'),
-      phone: formData.get('clientPhone'),
-      gstNumber: formData.get('clientGstNumber')
+      name: formData.get('clientName') as string,
+      email: formData.get('clientEmail') as string,
+      phone: formData.get('clientPhone') as string,
+      gstNumber: formData.get('clientGstNumber') as string
     }
     setClients(prev => prev.map(client => client.id === updatedClient.id ? updatedClient : client))
     setIsEditClientOpen(false)
     setEditingClient(null)
   }, [editingClient])
 
-  const handleDeleteClient = useCallback((id) => {
+  const handleDeleteClient = useCallback((id: number) => {
     setClients(prev => prev.filter(client => client.id !== id))
   }, [])
 
-  const handleAddItem = useCallback((e) => {
+  const handleAddItem = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    const newItem = {
+    const newItem: Item = {
       id: Date.now(),
-      name: formData.get('itemName'),
-      description: formData.get('itemDescription'),
-      price: parseFloat(formData.get('itemPrice')),
-      tax: parseFloat(formData.get('itemTax'))
+      name: formData.get('itemName') as string,
+      description: formData.get('itemDescription') as string,
+      price: parseFloat(formData.get('itemPrice') as string),
+      tax: parseFloat(formData.get('itemTax') as string)
     }
     setItems(prev => [...prev, newItem])
     setIsItemOpen(false)
   }, [])
 
-  const handleEditItem = useCallback((e) => {
+  const handleEditItem = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!editingItem) return
     const formData = new FormData(e.currentTarget)
-    const updatedItem = {
+    const updatedItem: Item = {
       id: editingItem.id,
-      name: formData.get('itemName'),
-      description: formData.get('itemDescription'),
-      price: parseFloat(formData.get('itemPrice')),
-      tax: parseFloat(formData.get('itemTax'))
+      name: formData.get('itemName') as string,
+      description: formData.get('itemDescription') as string,
+      price: parseFloat(formData.get('itemPrice') as string),
+      tax: parseFloat(formData.get('itemTax') as string)
     }
     setItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item))
     setIsEditItemOpen(false)
     setEditingItem(null)
   }, [editingItem])
 
-  const handleDeleteItem = useCallback((id) => {
+  const handleDeleteItem = useCallback((id: number) => {
     setItems(prev => prev.filter(item => item.id !== id))
   }, [])
 
-  const handleViewInvoiceHistory = useCallback((invoice) => {
+  // Update the handleViewInvoiceHistory function to use the Invoice type
+  const handleViewInvoiceHistory = useCallback((invoice: Invoice) => {
     const fullInvoice = invoiceHistory.find(inv => inv.number === invoice.number)
     if (fullInvoice) {
       setCurrentInvoice(fullInvoice)
@@ -175,6 +230,7 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col w-full min-h-screen bg-gray-100">
       <Header 
+        userName={userName}
         businessDetails={businessDetails} 
         invoiceHistory={invoiceHistory} 
         handleViewInvoiceHistory={handleViewInvoiceHistory}

@@ -4,14 +4,33 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 
-export function EditItemDialog({ isEditItemOpen, setIsEditItemOpen, editingItem, handleEditItem }) {
+interface Item {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+}
+
+interface EditItemDialogProps {
+  isEditItemOpen: boolean;
+  setIsEditItemOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editingItem: Item | null;
+  handleEditItem: (e: React.FormEvent<HTMLFormElement>) => void;
+}
+
+export function EditItemDialog({ 
+  isEditItemOpen, 
+  setIsEditItemOpen, 
+  editingItem, 
+  handleEditItem 
+}: EditItemDialogProps) {
   return (
     <Dialog open={isEditItemOpen} onOpenChange={setIsEditItemOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Item</DialogTitle>
           <DialogDescription>
-            Update the details of your item
+            Make changes to the item information here. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         {editingItem && (
@@ -34,13 +53,7 @@ export function EditItemDialog({ isEditItemOpen, setIsEditItemOpen, editingItem,
               </Label>
               <Input id="itemPrice" name="itemPrice" type="number" defaultValue={editingItem.price} className="col-span-3" />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="itemTax" className="text-right">
-                Tax (%)
-              </Label>
-              <Input id="itemTax" name="itemTax" type="number" defaultValue={editingItem.tax} className="col-span-3" />
-            </div>
-            <Button type="submit">Update Item</Button>
+            <Button type="submit">Save Changes</Button>
           </form>
         )}
       </DialogContent>

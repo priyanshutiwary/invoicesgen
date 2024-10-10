@@ -1,12 +1,34 @@
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Edit } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
-export function BusinessProfile({ isProfileOpen, setIsProfileOpen, businessDetails, handleBusinessDetailsChange, handleSaveBusinessDetails }) {
+interface BusinessDetails {
+  name: string;
+  email: string;
+  address: string;
+  description: string;
+  gstNumber: string;
+}
+
+interface BusinessProfileProps {
+  isProfileOpen: boolean;
+  setIsProfileOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  businessDetails: BusinessDetails;
+  handleBusinessDetailsChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleSaveBusinessDetails: () => void;
+}
+
+export function BusinessProfile({ 
+  isProfileOpen, 
+  setIsProfileOpen, 
+  businessDetails, 
+  handleBusinessDetailsChange, 
+  handleSaveBusinessDetails 
+}: BusinessProfileProps) {
   const [isEditing, setIsEditing] = useState(false)
 
   return (
