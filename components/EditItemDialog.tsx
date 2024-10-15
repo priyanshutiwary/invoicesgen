@@ -53,6 +53,12 @@ export function EditItemDialog({
               </Label>
               <Input id="itemPrice" name="itemPrice" type="number" defaultValue={editingItem.price} className="col-span-3" />
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="itemPrice" className="text-right">
+                Tax
+              </Label>
+              <Input id="itemPrice" name="itemPrice" type="number" defaultValue={editingItem.tax} className="col-span-3" />
+            </div>
             <Button type="submit">Save Changes</Button>
           </form>
         )}

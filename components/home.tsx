@@ -1,10 +1,6 @@
 "use client"
 
-<<<<<<< HEAD
-import React, { useState, useEffect, ErrorInfo, ReactNode } from 'react'
-=======
-import React, { useState, useEffect } from 'react'
->>>>>>> 30b80fa5da5e05cdce9d21365886dd782a64e2e1
+import React, { useState, useEffect, ReactNode, ErrorInfo } from 'react'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -50,7 +46,7 @@ interface FeatureProps {
   description: string;
 }
 
-// Update the Feature component with proper typing
+// Correct typing for Feature component using React.memo
 const Feature: React.FC<FeatureProps> = React.memo(({ icon: Icon, title, description }) => (
   <Card>
     <CardHeader>
@@ -70,7 +66,7 @@ interface TestimonialProps {
   quote: string;
 }
 
-// Update the Testimonial component with proper typing
+// Correct typing for Testimonial component using React.memo
 const Testimonial: React.FC<TestimonialProps> = React.memo(({ name, role, quote }) => (
   <Card>
     <CardContent className="pt-6">
@@ -88,62 +84,6 @@ export default function LandingPage() {
     setIsClient(true)
   }, [])
 
-<<<<<<< HEAD
-=======
-// Error Boundary Component
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true }
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.log('Error:', error, errorInfo)
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <h1>Something went wrong.</h1>
-    }
-
-    return this.props.children
-  }
-}
-
-const Feature = React.memo(({ icon: Icon, title, description }) => (
-  <Card>
-    <CardHeader>
-      <Icon className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mb-4" />
-      <CardTitle className="text-lg sm:text-xl">{title}</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p className="text-sm sm:text-base text-gray-600">{description}</p>
-    </CardContent>
-  </Card>
-))
-
-const Testimonial = React.memo(({ name, role, quote }) => (
-  <Card>
-    <CardContent className="pt-6">
-      <p className="text-sm sm:text-base text-gray-600 italic mb-4">"{quote}"</p>
-      <p className="font-semibold">{name}</p>
-      <p className="text-xs sm:text-sm text-gray-500">{role}</p>
-    </CardContent>
-  </Card>
-))
-
-export default function Component() {
-  const [isClient, setIsClient] = useState(false)
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
->>>>>>> 30b80fa5da5e05cdce9d21365886dd782a64e2e1
   const features = [
     { icon: FileText, title: "Easy Invoicing", description: "Create professional invoices in minutes with our intuitive interface." },
     { icon: DollarSign, title: "Get Paid Faster", description: "Streamline your payment process with integrated payment options." },

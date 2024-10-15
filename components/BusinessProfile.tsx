@@ -5,8 +5,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Edit } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-
+import { useSession } from 'next-auth/react'
 interface BusinessDetails {
+  userId: string;
   name: string;
   email: string;
   address: string;
@@ -29,7 +30,10 @@ export function BusinessProfile({
   handleBusinessDetailsChange, 
   handleSaveBusinessDetails 
 }: BusinessProfileProps) {
+  const { data: session } = useSession();
   const [isEditing, setIsEditing] = useState(false)
+  businessDetails.userId=session?.user?._id
+  
 
   return (
     <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
@@ -37,7 +41,7 @@ export function BusinessProfile({
         <DialogHeader>
           <DialogTitle>Business Details</DialogTitle>
           <DialogDescription>
-            View and edit your business information
+            Selected business information
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
@@ -45,12 +49,11 @@ export function BusinessProfile({
             <form onSubmit={(e) => { e.preventDefault(); handleSaveBusinessDetails(); setIsEditing(false); }}>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Business Name</Label>
-                  <Input id="name" name="name" value={businessDetails.name} onChange={handleBusinessDetailsChange} />
-                </div>
+                  <h3 className="text-xl font-bold">{businessDetails.name}</h3>
+                  <p className="text-gray-500 text-sm">Business name cannot be changed</p>                </div>
                 <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" value={businessDetails.email} onChange={handleBusinessDetailsChange} />
+                  <Label htmlFor="email">Contact</Label>
+                  <Input id="email" name="email"  value={businessDetails.contact} onChange={handleBusinessDetailsChange} />
                 </div>
                 <div>
                   <Label htmlFor="address">Address</Label>
@@ -71,7 +74,7 @@ export function BusinessProfile({
             <>
               <div className="space-y-2">
                 <p><strong>Name:</strong> {businessDetails.name}</p>
-                <p><strong>Email:</strong> {businessDetails.email}</p>
+                <p><strong>Contact:</strong> {businessDetails.contact}</p>
                 <p><strong>Address:</strong> {businessDetails.address}</p>
                 <p><strong>Description:</strong> {businessDetails.description}</p>
                 <p><strong>GST Number:</strong> {businessDetails.gstNumber}</p>

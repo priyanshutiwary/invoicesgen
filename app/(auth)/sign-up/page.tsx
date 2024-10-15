@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label"
 import { Loader2 } from 'lucide-react'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import axios from 'axios' // {{ edit_1 }} Import axios correctly
-import { AxiosError } from 'axios' // {{ edit_3 }} Import AxiosError for error handling
+import axios from 'axios' 
+import { AxiosError } from 'axios' 
 import { useToast } from '@/hooks/use-toast'
 
 // Define the ApiResponse interface if you have a specific structure
@@ -32,7 +32,7 @@ export default function SignUpPage() {
 
     setIsSubmitting(true);
     try {
-      const response = await axios.post<ApiResponse>('/api/signup', data); // {{ edit_5 }} Use data state for the request
+      const response = await axios.post<ApiResponse>('/api/signup', data); 
 
       toast({
         title: 'Success',

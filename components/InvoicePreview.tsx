@@ -1,75 +1,199 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { format } from 'date-fns'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { useInvoiceHandler } from '@/handler/invoiceHandler'
 
-export function InvoicePreview({ isInvoicePreviewOpen, setIsInvoicePreviewOpen, currentInvoice, businessDetails, targetRef, toPDF }) {
+interface BusinessDetails {
+  name: string;
+  address: string;
+  contact: string;
+  email: string;
+  website: string;
+  gstNumber: string;
+}
+
+interface Client {
+  _id: string;
+  name: string;
+  contact: string;
+  gstNumber: string;
+}
+
+interface InvoiceItem {
+  _id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  tax: number;
+}
+
+interface Invoice {
+  _id: string;
+  clientId: string;
+  items: InvoiceItem[];
+  total: number;
+  paymentStatus: 'paid' | 'due' | 'duedate';
+  dueDate?: string;
+  billDate: string;
+  isItemwiseTax: boolean;
+  totalTaxRate: number;
+}
+
+interface InvoicePreviewProps {
+  isInvoicePreviewOpen: boolean;
+  setIsInvoicePreviewOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  currentInvoice: Invoice | null;
+  businessDetails: BusinessDetails;
+  targetRef: React.RefObject<HTMLDivElement>;
+  toPDF: () => void;
+  onEdit: () => void;
+  onClose: () => void;
+  clients: Client[];
+  setInvoiceHistory: React.Dispatch<React.SetStateAction<Invoice[]>>;
+  setCurrentInvoice: React.Dispatch<React.SetStateAction<Invoice | null>>;
+}
+
+export function InvoicePreview({ 
+  isInvoicePreviewOpen, 
+  setIsInvoicePreviewOpen, 
+  currentInvoice, 
+  businessDetails, 
+  targetRef, 
+  toPDF,
+  onEdit,
+  onClose,
+  clients,
+  setInvoiceHistory,
+  setCurrentInvoice
+}: InvoicePreviewProps) {
+  const { handleSaveInvoice } = useInvoiceHandler(setInvoiceHistory, setIsInvoicePreviewOpen, setCurrentInvoice)
+  const businessId = businessDetails._id;
+  console.log("ye wala",businessDetails);
+  
+  
+  const formatDate = (dateString: string) => {
+    return format(new Date(dateString), 'dd/MM/yyyy')
+  }
+
+  const calculateItemTotal = (item: InvoiceItem) => {
+    const itemTotal = item.quantity * item.price
+    const taxAmount = currentInvoice?.isItemwiseTax 
+      ? (itemTotal * item.tax) / 100 
+      : (itemTotal * (currentInvoice?.totalTaxRate || 0)) / 100
+    return itemTotal + taxAmount
+  }
+
+  if (!currentInvoice) {
+    return null;
+  }
+  
+  const handleSave = () => {
+    if (currentInvoice) {
+      const invoiceWithBusinessId = { ...currentInvoice, businessId }
+      console.log("Invoice data being sent:", invoiceWithBusinessId)
+      handleSaveInvoice(invoiceWithBusinessId)
+    }
+  }
+
+  const client = clients.find(c => c._id === currentInvoice.clientId) || 
+    (currentInvoice.clientId === 'new' 
+      ? { name: 'New Client', contact: 'Contact info not available', gstNumber: 'GST info not available' } 
+      : { name: 'Client Name', contact: 'Client Contact', gstNumber: 'Client GST Number' });
+
   return (
     <Dialog open={isInvoicePreviewOpen} onOpenChange={setIsInvoicePreviewOpen}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>Invoice Preview</DialogTitle>
-          <DialogDescription>
-            Review your invoice before finalizing
-          </DialogDescription>
         </DialogHeader>
-        {currentInvoice && (
-          <div ref={targetRef} className="p-4 md:p-6 bg-white rounded-lg shadow-lg">
-            <div className="flex flex-col md:flex-row justify-between mb-8">
-              <div className="mb-4 md:mb-0">
-                <h2 className="text-xl md:text-2xl font-bold mb-2">{businessDetails.name}</h2>
-                <p className="text-sm md:text-base">{businessDetails.address}</p>
-                <p className="text-sm md:text-base">GST: {businessDetails.gstNumber}</p>
+        <Card ref={targetRef}>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Invoice Preview</CardTitle>
+            <CardDescription>Review your invoice before finalizing</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex justify-between">
+              <div>
+                <h3 className="text-xl font-semibold">{businessDetails.name}</h3>
+                <p>{businessDetails.address}</p>
+                <p>Contact: {businessDetails.contact}</p>
+                <p>Email: {businessDetails.email || 'N/A'}</p>
+                <p>Website: {businessDetails.website || 'N/A'}</p>
+                <p>GST: {businessDetails.gstNumber}</p>
               </div>
-              <div className="text-left md:text-right">
-                <h3 className="text-lg md:text-xl font-semibold mb-2">Invoice</h3>
-                <p className="text-sm md:text-base">Invoice #: {currentInvoice.number}</p>
-                <p className="text-sm md:text-base">Date: {currentInvoice.date}</p>
-                <p className="text-sm md:text-base">Due Date: {currentInvoice.dueDate}</p>
+              <div className="text-right">
+                <h3 className="text-lg font-semibold">Invoice Details</h3>
+                <p>Invoice ID: {currentInvoice._id}</p>
+                <p>Bill Date: {formatDate(currentInvoice.billDate)}</p>
+                {currentInvoice.paymentStatus === 'duedate' && currentInvoice.dueDate && (
+                  <p>Due Date: {formatDate(currentInvoice.dueDate)}</p>
+                )}
+                <p>Payment Status: {currentInvoice.paymentStatus}</p>
               </div>
             </div>
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-2">Bill To:</h3>
-              <p className="text-sm md:text-base">{currentInvoice.client.name}</p>
-              <p className="text-sm md:text-base">{currentInvoice.client.email}</p>
-              <p className="text-sm md:text-base">GST: {currentInvoice.client.gstNumber}</p>
+
+            <div className="border-t pt-4">
+              <h3 className="text-lg font-semibold mb-2">Client Information</h3>
+              <p>Name: {client.name}</p>
+              <p>Contact: {client.contact}</p>
+              <p>GST: {client.gstNumber}</p>
             </div>
-            <div className="overflow-x-auto">
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Invoice Items</h3>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Item</TableHead>
-                    <TableHead className="text-right">Qty</TableHead>
-                    <TableHead className="text-right">Price</TableHead>
-                    {currentInvoice.isItemwiseTax && <TableHead className="text-right">Tax (%)</TableHead>}
-                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead>Quantity</TableHead>
+                    <TableHead>Price</TableHead>
+                    {currentInvoice.isItemwiseTax && <TableHead>Tax (%)</TableHead>}
+                    <TableHead>Total</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {currentInvoice.items.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="text-sm md:text-base">{item.name}</TableCell>
-                      <TableCell className="text-right text-sm md:text-base">{item.quantity}</TableCell>
-                      <TableCell className="text-right text-sm md:text-base">₹{item.price.toFixed(2)}</TableCell>
-                      {currentInvoice.isItemwiseTax && <TableCell className="text-right text-sm md:text-base">{item.tax}%</TableCell>}
-                      <TableCell className="text-right text-sm md:text-base">
-                        ₹{((item.quantity * item.price) * (1 + (currentInvoice.isItemwiseTax ? item.tax : currentInvoice.totalTaxRate) / 100)).toFixed(2)}
-                      </TableCell>
+                  {currentInvoice.items.map((item) => (
+                    <TableRow key={item._id}>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                      {currentInvoice.isItemwiseTax && <TableCell>{item.tax}%</TableCell>}
+                      <TableCell>₹{calculateItemTotal(item).toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </div>
-            <div className="mt-8 text-right">
-              <p className="text-lg md:text-xl font-semibold">Total: ₹{currentInvoice.amount.toFixed(2)}</p>
+
+            <div className="flex justify-between items-center border-t pt-4">
+              <div>
+                {!currentInvoice.isItemwiseTax && (
+                  <p>Total Tax Rate: {currentInvoice.totalTaxRate}%</p>
+                )}
+              </div>
+              <div className="text-xl font-semibold">
+                Total: ₹{currentInvoice.total.toFixed(2)}
+              </div>
             </div>
-          </div>
-        )}
-        <div className="flex justify-end space-x-2 mt-4">
-          <Button onClick={() => toPDF()}>Download PDF</Button>
-          <Button onClick={() => setIsInvoicePreviewOpen(false)}>Close</Button>
-        </div>
+          </CardContent>
+        </Card>
+        <CardFooter className="flex justify-end space-x-2 mt-4">
+          <Button variant="outline" onClick={onClose}>Close</Button>
+          <Button onClick={onEdit}>Edit</Button>
+          <Button onClick={() => handleSave()}>Save</Button>
+          <Button onClick={toPDF}>Print Invoice</Button>
+        </CardFooter>
       </DialogContent>
     </Dialog>
   )
 }
+
+export default InvoicePreview

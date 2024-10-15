@@ -43,6 +43,7 @@ export const authOptions:NextAuthOptions = {
                     const isPasswordCorrect = await bcrypt.compare(credentials.password,user.password)
                     
                     if (isPasswordCorrect){
+                        
                         return user
                     }else{
                         throw new Error("please check password")
@@ -62,12 +63,15 @@ export const authOptions:NextAuthOptions = {
     callbacks:{
         
         async session({session, token}) {
+            
             if(token){
-                session.user._id = token.id as string 
-                session.user.isVerified = token.isVerified as boolean 
-                session.user.username = token.username as string 
+                session.user._id = token._id as string 
+                session.user.isVerified = token._isVerified as boolean 
+                session.user.username = token.username as string
+                
 
             }
+            
             return session
         },
         async jwt({token, user}){

@@ -8,7 +8,35 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Edit, Trash2 } from "lucide-react"
 
-export function ItemManagement({ isItemOpen, setIsItemOpen, isManageItemsOpen, setIsManageItemsOpen, items, handleAddItem, handleDeleteItem, setEditingItem, setIsEditItemOpen }) {
+interface Item {
+  id: string;
+  name: string;
+  price: number;
+}
+
+interface ItemManagementProps {
+  isItemOpen: boolean;
+  setIsItemOpen: (isOpen: boolean) => void;
+  isManageItemsOpen: boolean;
+  setIsManageItemsOpen: (isOpen: boolean) => void;
+  items: Item[] | undefined;
+  handleAddItem: (event: React.FormEvent<HTMLFormElement>) => void;
+  handleDeleteItem: (id: string) => void;
+  setEditingItem: (item: Item) => void;
+  setIsEditItemOpen: (isOpen: boolean) => void;
+}
+
+export function ItemManagement({ 
+  isItemOpen, 
+  setIsItemOpen, 
+  isManageItemsOpen, 
+  setIsManageItemsOpen, 
+  items, 
+  handleAddItem, 
+  handleDeleteItem, 
+  setEditingItem, 
+  setIsEditItemOpen 
+}: ItemManagementProps) {
   return (
     <Card>
       <CardHeader>
@@ -77,20 +105,26 @@ export function ItemManagement({ isItemOpen, setIsItemOpen, isManageItemsOpen, s
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {items.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell>₹{item.price.toFixed(2)}</TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm" onClick={() => { setEditingItem(item); setIsEditItemOpen(true); }}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDeleteItem(item.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+                  {items && items.length > 0 ? (
+                    items.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm" onClick={() => { setEditingItem(item); setIsEditItemOpen(true); }}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDeleteItem(item.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center">No items available</TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </ScrollArea>

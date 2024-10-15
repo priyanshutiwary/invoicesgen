@@ -9,10 +9,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Edit, Trash2 } from "lucide-react"
 
 interface Client {
-  id: number;
+  _id: number;
   name: string;
-  email: string;
-  phone: string;
+  contact: string;
   gstNumber: string;
 }
 
@@ -66,15 +65,9 @@ export function ClientManagement({
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="clientEmail" className="text-right">
-                  Email
+                  Contact
                 </Label>
-                <Input id="clientEmail" name="clientEmail" type="email" className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="clientPhone" className="text-right">
-                  Phone
-                </Label>
-                <Input id="clientPhone" name="clientPhone" type="tel" className="col-span-3" />
+                <Input id="clientEmail" name="clientEmail" className="col-span-3" />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="clientGstNumber" className="text-right">
@@ -102,25 +95,44 @@ export function ClientManagement({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
+                    <TableHead>Contact</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {clients.map((client) => (
-                    <TableRow key={client.id}>
-                      <TableCell>{client.name}</TableCell>
-                      <TableCell>{client.email}</TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm" onClick={() => { setEditingClient(client); setIsEditClientOpen(true); }}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDeleteClient(client.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+                  {clients && clients.length > 0 ? (
+                    clients.map((client) => (
+                      <TableRow key={client._id}>
+                        <TableCell>{client.name}</TableCell>
+                        <TableCell>{client.contact}</TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setEditingClient(client);
+                                setIsEditClientOpen(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteClient(client._id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3}>No clients available</TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </ScrollArea>

@@ -44,21 +44,21 @@ export function EditClientDialog({
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="clientEmail" className="text-right">
-                Email
+                Contact
               </Label>
-              <Input id="clientEmail" name="clientEmail" type="email" defaultValue={editingClient.email} className="col-span-3" />
+              <Input id="clientEmail" name="clientEmail" defaultValue={editingClient.contact} className="col-span-3" />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
+            {/* <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="clientPhone" className="text-right">
                 Phone
               </Label>
               <Input id="clientPhone" name="clientPhone" type="tel" defaultValue={editingClient.phone} className="col-span-3" />
-            </div>
+            </div> */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="clientGstNumber" className="text-right">
                 GST Number
               </Label>
-              <Input id="clientGstNumber" name="clientGstNumber" defaultValue={editingClient.gstNumber} className="col-span-3" />
+              <Input id="clientGstNumber" name="clientGstNumber" defaultValue={editingClient.gst_number} className="col-span-3" />
             </div>
             <Button type="submit">Save Changes</Button>
           </form>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, ChangeEvent, FormEvent } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Header } from '@/components/Header'
 import { DashboardCards } from '@/components/DashboardCards'
 import { InvoiceGeneration } from '@/components/InvoiceGeneration'
@@ -10,68 +10,46 @@ import { BusinessProfile } from '@/components/BusinessProfile'
 import { InvoicePreview } from '@/components/InvoicePreview'
 import { EditClientDialog } from '@/components/EditClientDialog'
 import { EditItemDialog } from '@/components/EditItemDialog'
-// import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { CreateBusinessPopup } from '@/components/createBusiness'
 import { usePDF } from 'react-to-pdf'
-import { toast } from "@/components/ui/use-toast"
-import { signOut } from 'next-auth/react'
-import { useSession } from 'next-auth/react'
-
-interface BusinessDetails {
-  name: string;
-  email: string;
-  address: string;
-  description: string;
-  gstNumber: string;
-}
-
-interface Client {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  gstNumber: string;
-}
-
-interface Item {
-  id: number;
-  name: string;
-  price: number;
-}
-
-interface InvoiceItem extends Omit<Item, 'id'> {
-  id: string;
-  quantity: number;
-}
-
-// Add this new interface for the Invoice type
-interface Invoice {
-  id: number;
-  number: string;
-  client: {
-    name: string;
-    email: string;
-    gstNumber: string;
-  };
-  date: string;
-  dueDate: string;
-  amount: number;
-  items: {
-    id: number;
-    name: string;
-    quantity: number;
-    price: number;
-    tax: number;
-  }[];
-  isItemwiseTax: boolean;
-  totalTaxRate: number;
-}
+import { toast } from '@/components/ui/use-toast'
+import { signOut, useSession } from 'next-auth/react'
+import { ApiResponse } from '@/backend/types/ApiResponse'
+import axios from 'axios'
+import BusinessSelector from '@/components/businessSelector'
+import { useBusinessHandlers } from '@/handler/businessHandler'
+import { useClientHandlers } from '@/handler/clientHandler'
+import { useItemHandlers } from '@/handler/itemHandlers'
+import { useInvoiceHandler } from '@/handler/invoiceHandler'
+import { useCreateBusinessHandler } from '@/handler/createBusiness'
+import {
+  BusinessDetails,
+  Client,
+  Item,
+  Invoice,
+  Business,
+  InvoiceItem
+} from '@/backend/types/type'
 
 export default function Dashboard() {
-  
-  const { data: session } = useSession(); // Extract session data
-  const userName = session?.user?.username;
+  const { data: session } = useSession()
+  const [userName, setUserName] = useState<string | undefined>(undefined)
+  const [user_id, setUser_id] = useState<string | undefined>(undefined)
+  const [businesses, setBusinesses] = useState<Business[]>([])
+  const [selectedBusinessId, setSelectedBusinessId] = useState<string>('')
+  const [businessDetails, setBusinessDetails] = useState<BusinessDetails>({
+    _id:'',
+    userId: '',
+    name: '',
+    contact: '',
+    address: '',
+    description: '',
+    gstNumber: '',
+  })
+  const [clients, setClients] = useState<Client[]>([])
+  const [items, setItems] = useState<Item[]>([])
+  const [invoiceHistory, setInvoiceHistory] = useState<Invoice[]>([])
 
-  
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false)
   const [isClientOpen, setIsClientOpen] = useState(false)
@@ -80,170 +58,163 @@ export default function Dashboard() {
   const [isEditItemOpen, setIsEditItemOpen] = useState(false)
   const [isManageClientsOpen, setIsManageClientsOpen] = useState(false)
   const [isManageItemsOpen, setIsManageItemsOpen] = useState(false)
-  const [businessDetails, setBusinessDetails] = useState<BusinessDetails>({
-    name: "Acme Corp",
-    email: "info@acmecorp.com",
-    address: "123 Business St, City, Country",
-    description: "Leading provider of innovative solutions",
-    gstNumber: "27AADCB2230M1Z3"
-  })
-  const [invoiceItems, setInvoiceItems] = useState([])
-  const [clients, setClients] = useState<Client[]>([
-    { id: 1, name: "Client A", email: "clienta@example.com", phone: "1234567890", gstNumber: "29ABCDE1234F1Z5" },
-    { id: 2, name: "Client B", email: "clientb@example.com", phone: "0987654321", gstNumber: "27FGHIJ5678K2Z3" }
-  ])
+  const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([])
   const [editingClient, setEditingClient] = useState<Client | null>(null)
-  const [items, setItems] = useState<Item[]>([
-    { id: 1, name: "Item 1", description: "Description for Item 1", price: 100, tax: 5 },
-    { id: 2, name: "Item 2", description: "Description for Item 2", price: 200, tax: 10 },
-    { id: 3, name: "Item 3", description: "Description for Item 3", price: 300, tax: 18 }
-  ])
   const [editingItem, setEditingItem] = useState<Item | null>(null)
   const [currentInvoice, setCurrentInvoice] = useState<Invoice | null>(null)
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false)
-  // Update the invoiceHistory state to use the Invoice type
-  const [invoiceHistory] = useState<Invoice[]>([
-    {
-      id: 1,
-      number: 'INV-001',
-      client: { name: 'Client A', email: 'clienta@example.com', gstNumber: '29ABCDE1234F1Z5' },
-      date: '2023-09-15',
-      dueDate: '2023-10-15',
-      amount: 5000,
-      items: [
-        { id: 1, name: 'Item 1', quantity: 2, price: 2000, tax: 5 },
-        { id: 2, name: 'Item 2', quantity: 1, price: 1000, tax: 5 }
-      ],
-      isItemwiseTax: true,
-      totalTaxRate: 5
-    },
-    {
-      id: 2,
-      number: 'INV-002',
-      client: { name: 'Client B', email: 'clientb@example.com', gstNumber: '27FGHIJ5678K2Z3' },
-      date: '2023-09-20',
-      dueDate: '2023-10-20',
-      amount: 7500,
-      items: [
-        { id: 1, name: 'Item 3', quantity: 1, price: 7500, tax: 18 }
-      ],
-      isItemwiseTax: true,
-      totalTaxRate: 18
+
+  const [invoiceData, setInvoiceData] = useState<{
+    clientId: string;
+    isNewClient: boolean;
+    newClient: { name: string; contact: string; gstNumber: string };
+    isItemwiseTax: boolean;
+    totalTaxRate: number;
+    paymentStatus: 'paid' | 'due' | 'duedate';
+    dueDate: string;
+    billDate: string;
+  }>({
+    clientId: '',
+    isNewClient: false,
+    newClient: { name: '', contact: '', gstNumber: '' },
+    isItemwiseTax: true,
+    totalTaxRate: 18,
+    paymentStatus: 'due',
+    dueDate: '',
+    billDate: new Date().toISOString().split('T')[0],
+  })
+
+  const { toPDF, targetRef } = usePDF({ filename: 'invoice.pdf' })
+
+  const {
+    handleBusinessDetailsChange,
+    handleSaveBusinessDetails,
+    handleBusinessChange,
+  } = useBusinessHandlers(
+    setBusinessDetails,
+    setSelectedBusinessId,
+    setClients,
+    setItems,
+    setInvoiceHistory,
+    businessDetails
+  )
+  const { handleAddClient, handleEditClient, handleDeleteClient } =
+    useClientHandlers(
+      selectedBusinessId,
+      setClients,
+      setIsClientOpen,
+      setIsEditClientOpen,
+      setEditingClient
+    )
+  const { handleAddItem, handleEditItem, handleDeleteItem } = useItemHandlers(
+    items,
+    selectedBusinessId,
+    setItems,
+    setIsItemOpen,
+    setIsEditItemOpen,
+    setEditingItem
+  )
+  const { handleSaveInvoice, handleViewInvoiceHistory } = useInvoiceHandler(
+    setInvoiceHistory,
+    setIsInvoicePreviewOpen,
+    setCurrentInvoice
+  )
+  const {
+    isCreateBusinessOpen,
+    setIsCreateBusinessOpen,
+    newBusinessDetails,
+    handleCreateBusinessClick,
+    handleNewBusinessDetailsChange,
+    handleSaveNewBusiness,
+    
+    isLoading,
+  } = useCreateBusinessHandler(user_id, setBusinesses, setSelectedBusinessId)
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      await setUserName(session?.user?.username)
+      await setUser_id(session?.user?._id)
     }
-  ])
+    fetchUserId()
+  }, [session])
 
-  const { toPDF, targetRef } = usePDF({filename: 'invoice.pdf'})
+  useEffect(() => {
+    if (!user_id) return
+    const fetchBusinesses = async () => {
+      try {
+        const response = await axios.get<ApiResponse>(
+          `/api/getUserBusinesses?user_id=${user_id}`
+        )
+        setBusinesses(response.data.businesses)
+        if (response.data.businesses.length > 0 && !selectedBusinessId) {
+          setSelectedBusinessId(response.data.businesses[0]._id)
 
-  const handleBusinessDetailsChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setBusinessDetails(prev => ({ ...prev, [e.target.name]: e.target.value }))
-  }, [])
+          setBusinessDetails({
+            ...businessDetails,
+            _id: response.data.businesses[0]._id,
+            name: response.data.businesses[0].name,
+            contact: response.data.businesses[0].contact,
+            address: response.data.businesses[0].address,
+            description: response.data.businesses[0].description,
+            gstNumber: response.data.businesses[0].gst_number,
+          })
 
-  const handleSaveBusinessDetails = useCallback(() => {
-    console.log("Saving business details:", businessDetails)
-  }, [businessDetails])
-
-  const handleAddClient = useCallback((e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const newClient: Client = {
-      id: Date.now(),
-      name: formData.get('clientName') as string,
-      email: formData.get('clientEmail') as string,
-      phone: formData.get('clientPhone') as string,
-      gstNumber: formData.get('clientGstNumber') as string
+          setClients(response.data.businesses[0].clients)
+          setItems(response.data.businesses[0].items)
+          setInvoiceHistory(response.data.businesses[0])
+        }
+      } catch (error) {
+        console.error('Error fetching businesses', error)
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch businesses',
+          variant: 'destructive',
+        })
+      }
     }
-    setClients(prev => [...prev, newClient])
-    setIsClientOpen(false)
-  }, [])
 
-  const handleEditClient = useCallback((e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!editingClient) return
-    const formData = new FormData(e.currentTarget)
-    const updatedClient: Client = {
-      id: editingClient.id,
-      name: formData.get('clientName') as string,
-      email: formData.get('clientEmail') as string,
-      phone: formData.get('clientPhone') as string,
-      gstNumber: formData.get('clientGstNumber') as string
+    if (session) {
+      fetchBusinesses()
     }
-    setClients(prev => prev.map(client => client.id === updatedClient.id ? updatedClient : client))
-    setIsEditClientOpen(false)
-    setEditingClient(null)
-  }, [editingClient])
+  }, [session, user_id, selectedBusinessId])
 
-  const handleDeleteClient = useCallback((id: number) => {
-    setClients(prev => prev.filter(client => client.id !== id))
-  }, [])
-
-  const handleAddItem = useCallback((e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const newItem: Item = {
-      id: Date.now(),
-      name: formData.get('itemName') as string,
-      description: formData.get('itemDescription') as string,
-      price: parseFloat(formData.get('itemPrice') as string),
-      tax: parseFloat(formData.get('itemTax') as string)
-    }
-    setItems(prev => [...prev, newItem])
-    setIsItemOpen(false)
-  }, [])
-
-  const handleEditItem = useCallback((e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!editingItem) return
-    const formData = new FormData(e.currentTarget)
-    const updatedItem: Item = {
-      id: editingItem.id,
-      name: formData.get('itemName') as string,
-      description: formData.get('itemDescription') as string,
-      price: parseFloat(formData.get('itemPrice') as string),
-      tax: parseFloat(formData.get('itemTax') as string)
-    }
-    setItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item))
-    setIsEditItemOpen(false)
-    setEditingItem(null)
-  }, [editingItem])
-
-  const handleDeleteItem = useCallback((id: number) => {
-    setItems(prev => prev.filter(item => item.id !== id))
-  }, [])
-
-  // Update the handleViewInvoiceHistory function to use the Invoice type
-  const handleViewInvoiceHistory = useCallback((invoice: Invoice) => {
-    const fullInvoice = invoiceHistory.find(inv => inv.number === invoice.number)
-    if (fullInvoice) {
-      setCurrentInvoice(fullInvoice)
-      setIsInvoicePreviewOpen(true)
-    } else {
-      toast({
-        title: "Error",
-        description: `Invoice ${invoice.number} not found`,
-        variant: "destructive",
-      })
-    }
-  }, [invoiceHistory])
-
-  const handleLogout = useCallback(async () => {
+  const handleLogout = async () => {
     await signOut()
     window.location.href = '/sign-in'
-  }, [])
+  }
+
+  const handleEditInvoice = () => {
+    setIsInvoicePreviewOpen(false)
+    setIsInvoiceOpen(true)
+  }
+
+  const handleCloseInvoicePreview = () => {
+    setIsInvoicePreviewOpen(false)
+  }
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gray-100">
-      <Header 
+      <Header
         userName={userName}
-        businessDetails={businessDetails} 
-        invoiceHistory={invoiceHistory} 
+        businessDetails={businessDetails}
+        invoiceHistory={invoiceHistory}
         handleViewInvoiceHistory={handleViewInvoiceHistory}
         handleLogout={handleLogout}
         setIsProfileOpen={setIsProfileOpen}
+        handleCreateBusiness={handleCreateBusinessClick}
       />
       <main className="flex-1 p-4 md:p-6 space-y-6 overflow-auto">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <BusinessSelector
+            businesses={businesses}
+            selectedBusinessId={selectedBusinessId}
+            onBusinessChange={handleBusinessChange}
+          />
+        </div>
         <DashboardCards />
         <div className="grid gap-6 md:grid-cols-3">
-          <InvoiceGeneration 
+          <InvoiceGeneration
             isInvoiceOpen={isInvoiceOpen}
             setIsInvoiceOpen={setIsInvoiceOpen}
             invoiceItems={invoiceItems}
@@ -252,8 +223,10 @@ export default function Dashboard() {
             items={items}
             setCurrentInvoice={setCurrentInvoice}
             setIsInvoicePreviewOpen={setIsInvoicePreviewOpen}
+            invoiceData={invoiceData}
+            setInvoiceData={setInvoiceData}
           />
-          <ClientManagement 
+          <ClientManagement
             isClientOpen={isClientOpen}
             setIsClientOpen={setIsClientOpen}
             isManageClientsOpen={isManageClientsOpen}
@@ -264,7 +237,7 @@ export default function Dashboard() {
             setEditingClient={setEditingClient}
             setIsEditClientOpen={setIsEditClientOpen}
           />
-          <ItemManagement 
+          <ItemManagement
             isItemOpen={isItemOpen}
             setIsItemOpen={setIsItemOpen}
             isManageItemsOpen={isManageItemsOpen}
@@ -277,32 +250,47 @@ export default function Dashboard() {
           />
         </div>
       </main>
-      <BusinessProfile 
+      <BusinessProfile
         isProfileOpen={isProfileOpen}
         setIsProfileOpen={setIsProfileOpen}
         businessDetails={businessDetails}
         handleBusinessDetailsChange={handleBusinessDetailsChange}
         handleSaveBusinessDetails={handleSaveBusinessDetails}
       />
-      <EditClientDialog 
+      <EditClientDialog
         isEditClientOpen={isEditClientOpen}
         setIsEditClientOpen={setIsEditClientOpen}
         editingClient={editingClient}
         handleEditClient={handleEditClient}
       />
-      <EditItemDialog 
+      <EditItemDialog
         isEditItemOpen={isEditItemOpen}
         setIsEditItemOpen={setIsEditItemOpen}
         editingItem={editingItem}
         handleEditItem={handleEditItem}
       />
-      <InvoicePreview 
+      <InvoicePreview
         isInvoicePreviewOpen={isInvoicePreviewOpen}
         setIsInvoicePreviewOpen={setIsInvoicePreviewOpen}
         currentInvoice={currentInvoice}
         businessDetails={businessDetails}
         targetRef={targetRef}
         toPDF={toPDF}
+        onEdit={handleEditInvoice}
+        onSave={handleSaveInvoice}
+        onClose={handleCloseInvoicePreview}
+        clients={clients}
+        setInvoiceHistory={setInvoiceHistory}
+        setCurrentInvoice={setCurrentInvoice}
+      />
+      <CreateBusinessPopup
+        isOpen={isCreateBusinessOpen}
+        onClose={() => setIsCreateBusinessOpen(false)}
+        businessDetails={newBusinessDetails}
+        handleBusinessDetailsChange={handleNewBusinessDetailsChange}
+        handleSaveBusinessDetails={handleSaveNewBusiness}
+        user_id={user_id}
+        isLoading={isLoading}
       />
     </div>
   )
