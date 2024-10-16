@@ -39,22 +39,30 @@ export const useItemHandlers = (items,selectedBusinessId: string, setItems: Reac
     }
   }, [selectedBusinessId, setItems, setIsItemOpen])
 
-  const handleEditItem = useCallback(async (e: React.FormEvent<HTMLFormElement>, editingItem: Item | null) => {
+
+  const handleEditItem = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!editingItem) return
     const formData = new FormData(e.currentTarget)
+    const itemId = formData.get('itemId')
+    
     const updatedItem: Item = {
-      id: editingItem.id,
+      
       name: formData.get('itemName') as string,
       description: formData.get('itemDescription') as string,
       price: parseFloat(formData.get('itemPrice') as string),
       tax: parseFloat(formData.get('itemTax') as string)
     }
+    
     try {
-      await axios.put<ApiResponse>(`/api/updateItem/${selectedBusinessId}/${updatedItem.id}`, updatedItem)
-      setItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item))
+      const response = await axios.put<ApiResponse>(`/api/setItem?businessId=${selectedBusinessId}&itemId=${itemId}`, updatedItem)
+      setItems(prev => prev.map(item => item._id === itemId ? response.data.item : item))
       setIsEditItemOpen(false)
       setEditingItem(null)
+      toast({
+        title: 'Success',
+        description: 'Item updated successfully',
+        variant: 'default'
+      })
     } catch (error) {
       console.error('Error updating item', error)
       toast({
@@ -65,10 +73,44 @@ export const useItemHandlers = (items,selectedBusinessId: string, setItems: Reac
     }
   }, [selectedBusinessId, setItems, setIsEditItemOpen, setEditingItem])
 
+  // const handleEditItem = useCallback(async (e: React.FormEvent<HTMLFormElement>, editingItem: Item | null) => {
+  //   e.preventDefault()
+  //   console.log("reached");
+    
+  //   console.log(editingItem);
+
+  //   const formData = new FormData(e.currentTarget)
+    
+  //   const updatedItem: Item = {
+  //     _id: editingItem._id,
+  //     name: formData.get('itemName') as string,
+  //     description: formData.get('itemDescription') as string,
+  //     price: parseFloat(formData.get('itemPrice') as string),
+  //     tax: parseFloat(formData.get('itemTax') as string)
+  //   }
+  //   console.log(updatedItem);
+    
+  //   try {
+  //     await axios.put<ApiResponse>(`/api/setItem?businessId=${selectedBusinessId}&itemId=${updatedItem._id}`, updatedItem)
+  //     setItems(prev => prev.map(item => item._id === updatedItem._id ? updatedItem : item))
+  //     setIsEditItemOpen(false)
+  //     setEditingItem(null)
+  //   } catch (error) {
+  //     console.error('Error updating item', error)
+  //     toast({
+  //       title: 'Error',
+  //       description: 'Failed to update item',
+  //       variant: 'destructive'
+  //     })
+  //   }
+  // }, [selectedBusinessId, setItems, setIsEditItemOpen, setEditingItem])
+
   const handleDeleteItem = useCallback(async (id: number) => {
+    console.log("reached");
+    
     try {
-      await axios.delete<ApiResponse>(`/api/deleteItem/${selectedBusinessId}/${id}`)
-      setItems(prev => prev.filter(item => item.id !== id))
+      await axios.delete<ApiResponse>(`/api/setItem?businessId=${selectedBusinessId}&itemId=${id}`)
+      setItems(prev => prev.filter(item => item._id !== id))
     } catch (error) {
       console.error('Error deleting item', error)
       toast({

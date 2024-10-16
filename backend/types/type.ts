@@ -22,7 +22,7 @@ export interface BusinessDetails {
     clientNumber: number;
     name: string;
     contact: string;
-    gstNumber: string;
+    gst_number: string;
   }
   
   export interface Item {

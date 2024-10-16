@@ -35,6 +35,7 @@ export const useClientHandlers = (selectedBusinessId: string, setClients: React.
   const handleEditClient = useCallback(async (e: React.FormEvent<HTMLFormElement>, editingClient: Client | null) => {
     e.preventDefault()
     if (!editingClient) return
+    
     const formData = new FormData(e.currentTarget)
     console.log(formData);
     
@@ -44,9 +45,11 @@ export const useClientHandlers = (selectedBusinessId: string, setClients: React.
       contact: formData.get('clientEmail') as string,
       gst_number: formData.get('clientGstNumber') as string
     }
+    console.log(updatedClient);
+    
     try {
-      await axios.put<ApiResponse>(`/api/updateClient?businessId=${selectedBusinessId}&clientId=${updatedClient._id}`, updatedClient)
-      setClients(prev => prev.map(clients => clients._id === updatedClient._id ? updatedClient : clients))
+      await axios.put<ApiResponse>(`/api/setClient?businessId=${selectedBusinessId}&clientId=${updatedClient._id}`, updatedClient)
+      setClients(prev => prev.map(client => client._id === updatedClient._id ? updatedClient : client))
       setIsEditClientOpen(false)
       setEditingClient(null)
     } catch (error) {
@@ -58,10 +61,9 @@ export const useClientHandlers = (selectedBusinessId: string, setClients: React.
       })
     }
   }, [selectedBusinessId, setClients, setIsEditClientOpen, setEditingClient])
-
   const handleDeleteClient = useCallback(async (_id: number) => {
     try {
-      await axios.delete<ApiResponse>(`/api/updateClient?businessId=${selectedBusinessId}&clientId=${_id}`)
+      await axios.delete<ApiResponse>(`/api/setClient?businessId=${selectedBusinessId}&clientId=${_id}`)
       setClients(prev => prev.filter(clients => clients._id !== _id))
     } catch (error) {
       console.error('Error deleting client', error)

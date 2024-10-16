@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Edit, Trash2 } from "lucide-react"
 
 interface Item {
-  id: string;
+  _id: string;
   name: string;
   price: number;
 }
@@ -107,14 +107,14 @@ export function ItemManagement({
                 <TableBody>
                   {items && items.length > 0 ? (
                     items.map((item) => (
-                      <TableRow key={item.id}>
+                      <TableRow key={item._id}>
                         <TableCell>{item.name}</TableCell>
                         <TableCell>₹{item.price.toFixed(2)}</TableCell>
                         <TableCell>
                           <Button variant="ghost" size="sm" onClick={() => { setEditingItem(item); setIsEditItemOpen(true); }}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleDeleteItem(item.id)}>
+                          <Button variant="ghost" size="sm" onClick={() => handleDeleteItem(item._id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>

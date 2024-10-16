@@ -57,12 +57,16 @@ export function Header({
   const [isInvoiceHistoryOpen, setIsInvoiceHistoryOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [loadedInvoices, setLoadedInvoices] = useState<Invoice[]>([]);
+  const [isLoading, setIsLoading] = useState(false)
+  const [hasLoaded, setHasLoaded] = useState(false)
+
   const itemsPerPage = 5;
 
   const totalPages = Math.ceil(loadedInvoices.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentInvoices = loadedInvoices.slice(startIndex, endIndex);
+
 
   const goToPreviousPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -98,6 +102,7 @@ export function Header({
     }
     return invoice.paymentStatus;
   };
+
 
   return (
     <header className="flex flex-col md:flex-row items-center justify-between h-auto md:h-16 px-4 py-4 md:py-0 border-b bg-white shrink-0 md:px-6">
@@ -174,11 +179,13 @@ export function Header({
               </TableRow>
             </TableHeader>
             <TableBody>
+              
+              
               {currentInvoices.map((invoice) => (
                 <TableRow key={invoice._id}>
                   <TableCell>{invoice.invoice_number}</TableCell>
                   <TableCell>{formatDate(invoice.billDate || invoice.invoice_date)}</TableCell>
-                  <TableCell>{invoice.customerName}</TableCell>
+                  {/* <TableCell>{invoice.customerName}</TableCell> */}
                   <TableCell>₹{invoice.total_amount.toFixed(2)}</TableCell>
                   <TableCell>{getStatusWithDueDate(invoice)}</TableCell>
                   <TableCell>

@@ -5,18 +5,17 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 
 interface Client {
-  id: number;
+  _id: string;
   name: string;
-  email: string;
-  phone: string;
-  gstNumber: string;
+  contact: string;
+  gst_number: string;
 }
 
 interface EditClientDialogProps {
   isEditClientOpen: boolean;
   setIsEditClientOpen: React.Dispatch<React.SetStateAction<boolean>>;
   editingClient: Client | null;
-  handleEditClient: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleEditClient: (e: React.FormEvent<HTMLFormElement>, editingClient: Client | null) => void;
 }
 
 export function EditClientDialog({ 
@@ -31,11 +30,11 @@ export function EditClientDialog({
         <DialogHeader>
           <DialogTitle>Edit Client</DialogTitle>
           <DialogDescription>
-            Make changes to the client information here. Click save when you&apos;re done.
+            Make changes to the client information here. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         {editingClient && (
-          <form onSubmit={handleEditClient} className="grid gap-4 py-4">
+          <form onSubmit={(e) => handleEditClient(e, editingClient)} className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="clientName" className="text-right">
                 Name
@@ -48,12 +47,6 @@ export function EditClientDialog({
               </Label>
               <Input id="clientEmail" name="clientEmail" defaultValue={editingClient.contact} className="col-span-3" />
             </div>
-            {/* <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="clientPhone" className="text-right">
-                Phone
-              </Label>
-              <Input id="clientPhone" name="clientPhone" type="tel" defaultValue={editingClient.phone} className="col-span-3" />
-            </div> */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="clientGstNumber" className="text-right">
                 GST Number

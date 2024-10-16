@@ -112,7 +112,8 @@ export default function Dashboard() {
     setItems,
     setIsItemOpen,
     setIsEditItemOpen,
-    setEditingItem
+    setEditingItem,
+    
   )
   const { handleSaveInvoice, handleViewInvoiceHistory } = useInvoiceHandler(
     setInvoiceHistory,
@@ -177,6 +178,7 @@ export default function Dashboard() {
       fetchBusinesses()
     }
   }, [session, user_id, selectedBusinessId])
+  
 
   const handleLogout = async () => {
     await signOut()

@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 
 interface Item {
-  id: number;
+  _id: number;
   name: string;
   description: string;
   price: number;
@@ -35,6 +35,7 @@ export function EditItemDialog({
         </DialogHeader>
         {editingItem && (
           <form onSubmit={handleEditItem} className="grid gap-4 py-4">
+            <input type="hidden" name="itemId" value={editingItem?._id} />
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="itemName" className="text-right">
                 Name
@@ -54,10 +55,10 @@ export function EditItemDialog({
               <Input id="itemPrice" name="itemPrice" type="number" defaultValue={editingItem.price} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="itemPrice" className="text-right">
+              <Label htmlFor="itemTax" className="text-right">
                 Tax
               </Label>
-              <Input id="itemPrice" name="itemPrice" type="number" defaultValue={editingItem.tax} className="col-span-3" />
+              <Input id="itemTax" name="itemTax" type="number" defaultValue={editingItem.tax} className="col-span-3" />
             </div>
             <Button type="submit">Save Changes</Button>
           </form>

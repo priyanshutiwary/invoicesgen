@@ -76,7 +76,7 @@ export function InvoicePreview({
 }: InvoicePreviewProps) {
   const { handleSaveInvoice } = useInvoiceHandler(setInvoiceHistory, setIsInvoicePreviewOpen, setCurrentInvoice)
   const businessId = businessDetails._id;
-  console.log("ye wala",businessDetails);
+  
   
   
   const formatDate = (dateString: string) => {
