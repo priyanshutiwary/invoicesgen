@@ -13,6 +13,8 @@ export async function sendVerificationEmail(
     verifyCode: string
 ): Promise<ApiResponse> {
     try {
+        console.log(username,email,verifyCode);
+        
         await resend.emails.send({
             from: 'InvoiceGen <onboarding@resend.dev>',
             to: email,
