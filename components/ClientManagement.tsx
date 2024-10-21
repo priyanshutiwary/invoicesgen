@@ -1,4 +1,6 @@
-import React from 'react'
+"use client"
+
+import React, { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -6,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Edit, Trash2 } from "lucide-react"
+import { Edit, Trash2, Search } from "lucide-react"
 
 interface Client {
   _id: number;
@@ -38,16 +40,28 @@ export function ClientManagement({
   setEditingClient, 
   setIsEditClientOpen 
 }: ClientManagementProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredClients, setFilteredClients] = useState<Client[]>(clients);
+
+  useEffect(() => {
+    const filtered = clients.filter(client => 
+      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.contact.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.gstNumber?.toLowerCase() ?? '').includes(searchQuery.toLowerCase())
+    );
+    setFilteredClients(filtered);
+  }, [searchQuery, clients]);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Manage Clients</CardTitle>
-        <CardDescription>Add or edit client information</CardDescription>
+    <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 shadow-lg">
+      <CardHeader className="border-b border-blue-200 pb-4">
+        <CardTitle className="text-2xl font-bold text-blue-800">Manage Clients</CardTitle>
+        <CardDescription className="text-blue-600">Add, edit, or remove client information</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Dialog open={isClientOpen} onOpenChange={setIsClientOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full">Add Client</Button>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Add Client</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
@@ -81,7 +95,7 @@ export function ClientManagement({
         </Dialog>
         <Dialog open={isManageClientsOpen} onOpenChange={setIsManageClientsOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" className="w-full">Manage Clients</Button>
+            <Button variant="outline" className="w-full border-blue-300 text-blue-700 hover:bg-blue-50">Manage Clients</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
@@ -90,20 +104,29 @@ export function ClientManagement({
                 View, edit, or delete your clients
               </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+            <div className="flex items-center space-x-2 mb-4 bg-white rounded-md p-2 shadow-sm">
+              <Search className="w-4 h-4 text-blue-500" />
+              <Input
+                placeholder="Search clients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-grow border-none focus:ring-0 focus:outline-none"
+              />
+            </div>
+            <ScrollArea className="h-[400px] w-full rounded-md border border-blue-200 p-4 bg-white">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Actions</TableHead>
+                  <TableRow className="bg-blue-100">
+                    <TableHead className="font-bold text-blue-800">Name</TableHead>
+                    <TableHead className="font-bold text-blue-800">Contact</TableHead>
+                    <TableHead className="font-bold text-blue-800">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {clients && clients.length > 0 ? (
-                    clients.map((client) => (
-                      <TableRow key={client._id}>
-                        <TableCell>{client.name}</TableCell>
+                  {filteredClients && filteredClients.length > 0 ? (
+                    filteredClients.map((client) => (
+                      <TableRow key={client._id} className="hover:bg-blue-50">
+                        <TableCell className="font-medium">{client.name}</TableCell>
                         <TableCell>{client.contact}</TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
@@ -114,6 +137,7 @@ export function ClientManagement({
                                 setEditingClient(client);
                                 setIsEditClientOpen(true);
                               }}
+                              className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -121,6 +145,7 @@ export function ClientManagement({
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteClient(client._id)}
+                              className="text-red-600 hover:text-red-800 hover:bg-red-100"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -130,7 +155,7 @@ export function ClientManagement({
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={3}>No clients available</TableCell>
+                      <TableCell colSpan={3} className="text-center text-gray-500">No clients found</TableCell>
                     </TableRow>
                   )}
                 </TableBody>

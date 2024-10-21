@@ -40,8 +40,6 @@ export const useInvoiceHandler = (
 
   const handleViewInvoiceHistory = async (businessId: string) => {
     try {
-        
-        
       const response = await axios.get(`/api/setInvoices?businessId=${businessId}`)
       
       console.log(response);

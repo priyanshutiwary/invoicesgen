@@ -20,7 +20,12 @@ export async function sendVerificationEmail(
             to: email,
             subject: 'Verify your email for InvoiceGen',
             react: VerificationEmail({username, otp: verifyCode}),
-        });
+            
+        })
+        console.log("hello verification send");
+        console.log(verifyCode);
+        
+        
         return {success: true, message: "Verification email sent successfully"}
     } catch (emailError) {
         console.error("Error sending verification email", emailError)

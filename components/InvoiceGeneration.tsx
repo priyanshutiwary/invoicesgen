@@ -359,15 +359,15 @@ export function InvoiceGeneration({
 
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto bg-gradient-to-br from-blue-50 to-indigo-100 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Generate Invoice</CardTitle>
-        <CardDescription>Create a new invoice for your clients</CardDescription>
+        <CardTitle className="text-2xl font-bold text-blue-800">Generate Invoice</CardTitle>
+        <CardDescription className="text-blue-600">Create a new invoice for your clients</CardDescription>
       </CardHeader>
       <CardContent>
         <Dialog open={isInvoiceOpen} onOpenChange={setIsInvoiceOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full">Generate Invoice</Button>
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Generate Invoice</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-auto">
             <DialogHeader>

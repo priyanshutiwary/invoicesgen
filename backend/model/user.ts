@@ -131,7 +131,7 @@ const ActivitySchema = new Schema({
   business: { type: Schema.Types.ObjectId, ref: 'Business', required: true },
   activity_type: { 
     type: String, 
-    enum: ['invoice_generated', 'client_added', 'invoice_paid', 'item_added'], 
+    enum: ['invoice_generated', 'client_added', 'invoice_paid', 'item_added','invoice_marked_paid', 'invoice_due_date_extended',], 
     required: true 
   },
   description: { type: String, required: true },

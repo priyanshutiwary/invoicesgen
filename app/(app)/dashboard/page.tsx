@@ -113,7 +113,6 @@ export default function Dashboard() {
     setIsItemOpen,
     setIsEditItemOpen,
     setEditingItem,
-    
   )
   const { handleSaveInvoice, handleViewInvoiceHistory } = useInvoiceHandler(
     setInvoiceHistory,
