@@ -15,7 +15,9 @@ export async function POST(request: Request) {
       dueDate, 
       billDate, 
       isItemwiseTax, 
-      totalTaxRate 
+      totalTaxRate,
+      invoice_id,
+      
     } = await request.json();
     
     console.log('Incoming Invoice Data:', { 
@@ -27,7 +29,9 @@ export async function POST(request: Request) {
       dueDate, 
       billDate, 
       isItemwiseTax, 
-      totalTaxRate 
+      totalTaxRate,
+      invoice_id
+      
     });
 
     if (!businessId || !clientId || !items || !total || !paymentStatus || !billDate || isItemwiseTax === undefined) {
@@ -83,6 +87,7 @@ export async function POST(request: Request) {
     const newInvoice = new Invoice({
       business: businessId,
       client: clientId,
+      invoice_id:invoice_id,
       invoice_number: newInvoiceNumber,
       items: items.map((item: InvoiceItem) => ({
         item: item._id,
@@ -96,7 +101,9 @@ export async function POST(request: Request) {
       dueDate: dueDate ,
       billDate: billDate,
       isItemwiseTax,
-      totalTaxRate
+      totalTaxRate,
+      total:total
+      
     });
 
     console.log('Invoice Before Save:', newInvoice);
@@ -225,11 +232,135 @@ export async function GET(request: Request) {
 }
 
 // for marking payment as paid and extending date
+// export async function PATCH(request: Request) {
+//     await connectDB();
+    
+//     try {
+//       const { invoiceId, action, newDueDate, paymentStatus } = await request.json();
+      
+      
+      
+      
+      
+//       // Validate that invoiceId and action are provided
+//       if (!invoiceId || !action) {
+//         return new Response(
+//           JSON.stringify({
+//             success: false,
+//             message: 'Missing required fields: invoiceId or action.',
+//           }),
+//           { status: 400 }
+//         );
+//       }
+  
+//       // Find the invoice
+//       const invoice = await Invoice.findById(invoiceId);
+//       if (!invoice) {
+//         return new Response(
+//           JSON.stringify({
+//             success: false,
+//             message: 'Invoice not found.',
+//           }),
+//           { status: 404 }
+//         );
+//       }
+  
+//       // Perform different actions based on the provided action
+//       if (action === 'extendDueDate') {
+//         if (!newDueDate) {
+//           return new Response(
+//             JSON.stringify({
+//               success: false,
+//               message: 'Missing newDueDate for extending due date.',
+//             }),
+//             { status: 400 }
+//           );
+//         }
+  
+//         // Update the due date
+//         invoice.dueDate = newDueDate;
+//         await invoice.save();
+  
+//         // Log the activity for extending due date
+//         const activity = new Activity({
+//           business: invoice.business,
+//           activity_type: 'invoice_due_date_extended',
+//           description: `Due date for invoice #${invoice.invoice_number} extended to ${new Date(newDueDate).toLocaleDateString()}.`,
+//           timestamp: new Date(),
+//         });
+//         await activity.save();
+  
+//         return new Response(
+//           JSON.stringify({
+//             success: true,
+//             message: 'Due date extended successfully.',
+//             invoice,
+//           }),
+//           { status: 200 }
+//         );
+  
+//       } else if (action === 'markAsPaid') {
+//         if (!paymentStatus || paymentStatus !== 'paid') {
+//           return new Response(
+//             JSON.stringify({
+//               success: false,
+//               message: 'Invalid or missing payment status for marking invoice as paid.',
+//             }),
+//             { status: 400 }
+//           );
+//         }
+  
+//         // Mark the invoice as paid
+//         invoice.status = 'paid';
+//         invoice.paymentStatus = paymentStatus;
+//         await invoice.save();
+  
+//         // Log the activity for marking as paid
+//         const activity = new Activity({
+//           business: invoice.business,
+//           activity_type: 'invoice_marked_paid',
+//           description: `Invoice #${invoice.invoice_number} marked as paid.`,
+//           timestamp: new Date(),
+//         });
+//         await activity.save();
+  
+//         return new Response(
+//           JSON.stringify({
+//             success: true,
+//             message: 'Invoice marked as paid successfully.',
+//             invoice,
+//           }),
+//           { status: 200 }
+//         );
+  
+//       } else {
+//         return new Response(
+//           JSON.stringify({
+//             success: false,
+//             message: 'Invalid action.',
+//           }),
+//           { status: 400 }
+//         );
+//       }
+  
+//     } catch (error) {
+//       console.error('Error updating invoice:', error);
+  
+//       return new Response(
+//         JSON.stringify({
+//           success: false,
+//           message: 'Error updating invoice',
+//           error: error.message,
+//         }),
+//         { status: 500 }
+//       );
+//     }
+//   }
 export async function PATCH(request: Request) {
     await connectDB();
   
     try {
-      const { invoiceId, action, newDueDate, paymentStatus } = await request.json();
+      const { invoiceId, action, newDueDate } = await request.json();
   
       // Validate that invoiceId and action are provided
       if (!invoiceId || !action) {
@@ -254,84 +385,79 @@ export async function PATCH(request: Request) {
         );
       }
   
-      // Perform different actions based on the provided action
-      if (action === 'extendDueDate') {
-        if (!newDueDate) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              message: 'Missing newDueDate for extending due date.',
-            }),
-            { status: 400 }
-          );
-        }
-  
-        // Update the due date
-        invoice.dueDate = newDueDate;
-        await invoice.save();
-  
-        // Log the activity for extending due date
+      // Common function to log activities
+      const logActivity = async (activityType, description) => {
         const activity = new Activity({
           business: invoice.business,
-          activity_type: 'invoice_due_date_extended',
-          description: `Due date for invoice #${invoice.invoice_number} extended to ${new Date(newDueDate).toLocaleDateString()}.`,
+          activity_type: activityType,
+          description,
           timestamp: new Date(),
         });
         await activity.save();
+      };
   
-        return new Response(
-          JSON.stringify({
-            success: true,
-            message: 'Due date extended successfully.',
-            invoice,
-          }),
-          { status: 200 }
-        );
+      // Perform actions based on the provided action
+      switch (action) {
+        case 'extendDueDate':
+          if (!newDueDate) {
+            return new Response(
+              JSON.stringify({
+                success: false,
+                message: 'Missing newDueDate for extending due date.',
+              }),
+              { status: 400 }
+            );
+          }
   
-      } else if (action === 'markAsPaid') {
-        if (!paymentStatus || paymentStatus !== 'paid') {
+          // Update the due date
+          invoice.dueDate = newDueDate;
+          await invoice.save();
+  
+          // Log the activity
+          await logActivity(
+            'invoice_due_date_extended',
+            `Due date for invoice #${invoice.invoice_number} extended to ${new Date(newDueDate).toLocaleDateString()}.`
+          );
+  
+          return new Response(
+            JSON.stringify({
+              success: true,
+              message: 'Due date extended successfully.',
+              invoice,
+            }),
+            { status: 200 }
+          );
+  
+        case 'markAsPaid':
+          // Mark the invoice as paid
+          invoice.status = 'paid';
+          invoice.paymentStatus = 'paid'; // Set paymentStatus to 'paid'
+          await invoice.save();
+  
+          // Log the activity
+          await logActivity(
+            'invoice_marked_paid',
+            `Invoice #${invoice.invoice_number} marked as paid.`
+          );
+  
+          return new Response(
+            JSON.stringify({
+              success: true,
+              message: 'Invoice marked as paid successfully.',
+              invoice,
+            }),
+            { status: 200 }
+          );
+  
+        default:
           return new Response(
             JSON.stringify({
               success: false,
-              message: 'Invalid or missing payment status for marking invoice as paid.',
+              message: 'Invalid action.',
             }),
             { status: 400 }
           );
-        }
-  
-        // Mark the invoice as paid
-        invoice.status = 'paid';
-        invoice.paymentStatus = paymentStatus;
-        await invoice.save();
-  
-        // Log the activity for marking as paid
-        const activity = new Activity({
-          business: invoice.business,
-          activity_type: 'invoice_marked_paid',
-          description: `Invoice #${invoice.invoice_number} marked as paid.`,
-          timestamp: new Date(),
-        });
-        await activity.save();
-  
-        return new Response(
-          JSON.stringify({
-            success: true,
-            message: 'Invoice marked as paid successfully.',
-            invoice,
-          }),
-          { status: 200 }
-        );
-  
-      } else {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            message: 'Invalid action.',
-          }),
-          { status: 400 }
-        );
       }
-  
     } catch (error) {
       console.error('Error updating invoice:', error);
   
@@ -345,3 +471,4 @@ export async function PATCH(request: Request) {
       );
     }
   }
+  

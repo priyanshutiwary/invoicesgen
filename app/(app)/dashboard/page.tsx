@@ -11,6 +11,7 @@ import { InvoicePreview } from '@/components/InvoicePreview'
 import { EditClientDialog } from '@/components/EditClientDialog'
 import { EditItemDialog } from '@/components/EditItemDialog'
 import { CreateBusinessPopup } from '@/components/createBusiness'
+// import {invoiceViewer} from '@/components/invoiceViewer'
 import { usePDF } from 'react-to-pdf'
 import { toast } from '@/components/ui/use-toast'
 import { signOut, useSession } from 'next-auth/react'
@@ -30,6 +31,7 @@ import {
   Business,
   InvoiceItem
 } from '@/backend/types/type'
+
 
 export default function Dashboard() {
   const { data: session } = useSession()
@@ -63,7 +65,8 @@ export default function Dashboard() {
   const [editingItem, setEditingItem] = useState<Item | null>(null)
   const [currentInvoice, setCurrentInvoice] = useState<Invoice | null>(null)
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false)
-
+  const [isViewHistoryInvoice, setIsViewHistoryInvoice] = useState(false)
+  
   const [invoiceData, setInvoiceData] = useState<{
     clientId: string;
     isNewClient: boolean;
@@ -73,6 +76,7 @@ export default function Dashboard() {
     paymentStatus: 'paid' | 'due' | 'duedate';
     dueDate: string;
     billDate: string;
+    
   }>({
     clientId: '',
     isNewClient: false,
@@ -82,6 +86,7 @@ export default function Dashboard() {
     paymentStatus: 'due',
     dueDate: '',
     billDate: new Date().toISOString().split('T')[0],
+    
   })
 
   const { toPDF, targetRef } = usePDF({ filename: 'invoice.pdf' })
@@ -114,10 +119,10 @@ export default function Dashboard() {
     setIsEditItemOpen,
     setEditingItem,
   )
-  const { handleSaveInvoice, handleViewInvoiceHistory } = useInvoiceHandler(
+  const { handleSaveInvoice, handleViewInvoiceHistory, handleExtendDate, handleMarkPayment } = useInvoiceHandler(
     setInvoiceHistory,
     setIsInvoicePreviewOpen,
-    setCurrentInvoice
+    setCurrentInvoice,
   )
   const {
     isCreateBusinessOpen,
@@ -126,7 +131,6 @@ export default function Dashboard() {
     handleCreateBusinessClick,
     handleNewBusinessDetailsChange,
     handleSaveNewBusiness,
-    
     isLoading,
   } = useCreateBusinessHandler(user_id, setBusinesses, setSelectedBusinessId)
 
@@ -178,20 +182,98 @@ export default function Dashboard() {
     }
   }, [session, user_id, selectedBusinessId])
   
-
   const handleLogout = async () => {
     await signOut()
     window.location.href = '/sign-in'
   }
 
   const handleEditInvoice = () => {
+    
     setIsInvoicePreviewOpen(false)
     setIsInvoiceOpen(true)
   }
 
   const handleCloseInvoicePreview = () => {
     setIsInvoicePreviewOpen(false)
+    setIsViewHistoryInvoice(false)
   }
+
+  
+//   const handleViewInvoice = (invoice: Invoice) => {
+// // console.log(typeof invoice.items[i]._id, typeof items[j]._id); // for item IDs
+
+    
+//     for (let i = 0; i < clients.length; i++) {
+      
+
+//       if (invoice.clientId === clients[i]._id) {
+//         console.log("found client");
+        
+//         invoice.client=clients[i]
+//         break;
+//       }
+//     }
+    
+//     for (let i = 0; i < invoice.items.length; i++) {
+//       for (let j = 0; j < items.length; j++) {
+//         console.log("reached");
+        
+//       if (invoice.items[i]._id === items[j]._id) {
+//         console.log(true);
+        
+//         invoice.items[i].name=items[j].name ;
+//         break;
+//         // console.log(invoice);
+        
+//       }
+//     }
+//     }
+//     setCurrentInvoice(invoice)
+//     setIsInvoicePreviewOpen(true)
+//   }
+const handleViewInvoice = (invoice: Invoice) => {
+  console.log("before enhancing" ,invoice);
+  
+  try {
+    // Create a new object instead of using JSON.parse/stringify
+    const enrichedInvoice: Invoice = {
+      ...invoice,
+      items: [...invoice.items], // Create a new array for items
+      client: undefined,// Initialize client as undefined
+    };
+
+    // Find and add client details
+    const matchingClient = clients.find(clients => clients._id === invoice.client);
+    console.log(matchingClient);
+    
+    if (matchingClient) {
+      enrichedInvoice.client = matchingClient;
+    }
+    
+    enrichedInvoice.items = enrichedInvoice.items.map(invoiceItem => {
+      const matchingItem = items.find(items => items._id === invoiceItem.item);
+      console.log("Matching item:", matchingItem);
+      
+      if (matchingItem) {
+        return {
+          ...invoiceItem,
+          name: matchingItem.name,
+          tax: matchingItem.tax || invoiceItem.tax, // Use existing tax if matching item's tax is undefined
+        };
+      }
+      return invoiceItem;
+    });
+
+    console.log('Enriched Invoice:', enrichedInvoice);
+    
+    setCurrentInvoice(enrichedInvoice);
+    setIsInvoicePreviewOpen(true);
+    setIsViewHistoryInvoice(true);
+  } catch (error) {
+    console.error('Error processing invoice:', error);
+    // Handle error appropriately (maybe show a notification to user)
+  }
+};
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gray-100">
@@ -200,9 +282,12 @@ export default function Dashboard() {
         businessDetails={businessDetails}
         invoiceHistory={invoiceHistory}
         handleViewInvoiceHistory={handleViewInvoiceHistory}
+        handleViewInvoice={handleViewInvoice}
         handleLogout={handleLogout}
         setIsProfileOpen={setIsProfileOpen}
         handleCreateBusiness={handleCreateBusinessClick}
+        handleMarkPaid={handleMarkPayment}
+        handleExtendDate={handleExtendDate}
       />
       <main className="flex-1 p-4 md:p-6 space-y-6 overflow-auto">
         <div className="flex justify-between items-center">
@@ -226,6 +311,7 @@ export default function Dashboard() {
             setIsInvoicePreviewOpen={setIsInvoicePreviewOpen}
             invoiceData={invoiceData}
             setInvoiceData={setInvoiceData}
+            setIsViewHistoryInvoice={setIsViewHistoryInvoice}
           />
           <ClientManagement
             isClientOpen={isClientOpen}
@@ -283,7 +369,14 @@ export default function Dashboard() {
         clients={clients}
         setInvoiceHistory={setInvoiceHistory}
         setCurrentInvoice={setCurrentInvoice}
+        isViewInvoiceHistory={isViewHistoryInvoice}
       />
+      {/* <InvoiceViewer
+        invoice={currentInvoice}
+        client={clients.find(client => client._id === currentInvoice?.clientId) || null}
+        isOpen={isInvoiceViewerOpen}
+        onClose={() => setIsInvoiceViewerOpen(false)}
+      /> */}
       <CreateBusinessPopup
         isOpen={isCreateBusinessOpen}
         onClose={() => setIsCreateBusinessOpen(false)}

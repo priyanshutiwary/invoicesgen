@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { number } from "zod";
  
 
 
@@ -111,6 +112,7 @@ const BusinessSchema = new Schema({
 const InvoiceSchema = new Schema({
   business: { type: Schema.Types.ObjectId, ref: 'Business', required: true },
   client: { type: Schema.Types.ObjectId, ref: 'Business.clients', required: true },
+  invoice_id: {type: String, required: true},
   invoice_number: { type: String, required: true },
   billDate: { type: Date, required: true },
   dueDate: { type: Date },
@@ -123,7 +125,8 @@ const InvoiceSchema = new Schema({
     quantity: { type: Number, required: true },
     price: { type: Number, required: true },
     tax: { type: Number, required: true }
-  }]
+  }],
+  total:{type:Number, required:true}
 }, { timestamps: true });// Add timestamps
 
 // Activity Schema

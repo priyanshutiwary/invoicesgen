@@ -60,7 +60,7 @@ interface InvoiceItem {
 }
 
 interface Invoice {
-  _id: string
+  invoice_id: string
   clientId: string
   items: InvoiceItem[]
   total: number
@@ -69,9 +69,11 @@ interface Invoice {
   billDate: string
   isItemwiseTax: boolean
   totalTaxRate: number
+  client: Client
 }
 
 interface InvoiceData {
+  invoice_id: string
   clientId: string
   isNewClient: boolean
   newClient: { name: string; contact: string; gstNumber: string }
@@ -80,6 +82,8 @@ interface InvoiceData {
   paymentStatus: 'paid' | 'due' | 'duedate'
   dueDate: string
   billDate: string
+  total: number
+  
 }
 
 interface InvoiceGenerationProps {
@@ -93,6 +97,7 @@ interface InvoiceGenerationProps {
   setIsInvoicePreviewOpen: React.Dispatch<React.SetStateAction<boolean>>
   invoiceData: InvoiceData
   setInvoiceData: React.Dispatch<React.SetStateAction<InvoiceData>>
+  setIsViewHistoryInvoice
 }
 
 export function InvoiceGeneration({
@@ -106,6 +111,7 @@ export function InvoiceGeneration({
   setIsInvoicePreviewOpen,
   invoiceData,
   setInvoiceData,
+  setIsViewHistoryInvoice,
 }: InvoiceGenerationProps) {
   useEffect(() => {
     // Update local state when invoiceData changes
@@ -288,9 +294,10 @@ export function InvoiceGeneration({
         })
         return
       }
+      const matchingClient = clients.find(clients => clients._id === selectedClientId);
 
       const invoiceData: Invoice = {
-        _id: Date.now().toString(),
+        invoice_id: Date.now().toString(),
         clientId: isNewClient ? 'new' : selectedClientId,
         items: invoiceItems,
         total: calculateTotal(),
@@ -299,13 +306,16 @@ export function InvoiceGeneration({
         billDate: billDate,
         isItemwiseTax: isItemwiseTax,
         totalTaxRate: totalTaxRate,
+        client:matchingClient
       }
       setCurrentInvoice(invoiceData)
       setIsInvoiceOpen(false)
       setIsInvoicePreviewOpen(true)
-
+      setIsViewHistoryInvoice(false)
+      
       // Update invoiceData state
       setInvoiceData({
+        invoice_id: Date.now().toString(),
         clientId: selectedClientId,
         isNewClient: isNewClient,
         newClient: newClient,
@@ -314,6 +324,7 @@ export function InvoiceGeneration({
         paymentStatus: paymentStatus,
         dueDate: dueDate,
         billDate: billDate,
+        total:0,
       })
     },
     [
@@ -346,6 +357,7 @@ export function InvoiceGeneration({
     setDueDate('')
     
     setInvoiceData({
+      invoice_id:"",
       clientId: '',
       isNewClient: false,
       newClient: { name: '', contact: '', gstNumber: '' },
@@ -354,6 +366,7 @@ export function InvoiceGeneration({
       paymentStatus: 'due',
       dueDate: '',
       billDate: new Date().toISOString().split('T')[0],
+      total:0,
     })
   }
 

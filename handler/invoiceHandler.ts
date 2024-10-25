@@ -21,7 +21,11 @@ export const useInvoiceHandler = (
           description: 'Invoice saved successfully',
         })
         setIsInvoicePreviewOpen(false)
-        setInvoiceHistory(prevHistory => [...prevHistory, response.data.invoice])
+        setInvoiceHistory(prevHistory => {
+            // Ensure prevHistory is always an array
+            const history = Array.isArray(prevHistory) ? prevHistory : []
+            return [...history, response.data.invoice]
+          })
         setCurrentInvoice(null)
         return true
       } else {
@@ -38,6 +42,7 @@ export const useInvoiceHandler = (
     }
   }
 
+// view invoice history 
   const handleViewInvoiceHistory = async (businessId: string) => {
     try {
       const response = await axios.get(`/api/setInvoices?businessId=${businessId}`)
@@ -59,14 +64,88 @@ export const useInvoiceHandler = (
     }
   }
 
+  
+
   const handleViewInvoice = (invoice: Invoice) => {
     setCurrentInvoice(invoice)
     setIsInvoicePreviewOpen(true)
   }
+  // mark payment as paid 
+  const handleExtendDate = async (invoiceId: string, newDueDate: Date) => {
+    try {
+      const response = await axios.patch(`/api/setInvoices/`, {  invoiceId:invoiceId,action:"extendDueDate" ,dueDate: newDueDate })
+  
+      if (response.data.success) {
+        toast({
+          title: 'Due Date Extended',
+          description: `Invoice due date has been successfully extended to ${newDueDate.toLocaleDateString()}.`,
+        })
+  
+        // Optionally log this activity
+        
+  
+        // Update local state with the updated invoice
+        setInvoiceHistory(prevHistory =>
+          prevHistory.map(invoice =>
+            invoice._id === invoiceId ? { ...invoice, dueDate: newDueDate } : invoice
+          )
+        )
+      } else {
+        throw new Error(response.data.message || 'Failed to extend due date')
+      }
+    } catch (error) {
+      console.error('Error extending due date:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to extend due date',
+        variant: 'destructive',
+      })
+    }
+  }
+  
+  const handleMarkPayment = async (invoiceId: string) => {
+    try {
+        console.log("reached handleMarkPayment");
+        
+      // Update the invoice status to 'paid'
+      const response = await axios.patch(`/api/setInvoices`,{ invoiceId:invoiceId,action:"markAsPaid" })
+  
+      if (response.data.success) {
+        toast({
+          title: 'Payment Marked as Paid',
+          description: 'Invoice payment has been successfully marked as paid.',
+        })
+  
+        // Optionally log this activity
+        
+  
+        // Update local state with the updated invoice
+        setInvoiceHistory(prevHistory =>
+          prevHistory.map(invoice =>
+            invoice._id === invoiceId ? { ...invoice, paymentStatus: 'paid' } : invoice
+          )
+        )
+      } else {
+        throw new Error(response.data.message || 'Failed to mark payment as paid')
+      }
+    } catch (error) {
+      console.error('Error marking payment as paid:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to mark payment as paid',
+        variant: 'destructive',
+      })
+    }
+  }
+  
 
   return {
     handleSaveInvoice,
     handleViewInvoiceHistory,
     handleViewInvoice,
+    handleExtendDate,
+    handleMarkPayment
   }
 }
+
+//mark payment as paid 

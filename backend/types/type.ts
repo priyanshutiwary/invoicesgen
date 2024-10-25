@@ -18,7 +18,7 @@ export interface BusinessDetails {
   
   export interface Client {
     businessId:string;
-    _id: number;
+    _id: string;
     clientNumber: number;
     name: string;
     contact: string;
@@ -27,7 +27,7 @@ export interface BusinessDetails {
   
   export interface Item {
     businessId:string;
-    _id: number;
+    _id: string;
     itemNumber:number;
     name: string;
     description: string;
@@ -36,29 +36,24 @@ export interface BusinessDetails {
   }
   
   export interface Invoice {
-    businessId: number;
-    number: string;
-    client: {
-      name: string;
-      email: string;
-      gstNumber: string;
-    };
-    date: string;
+    _id: string;
+    businessId: string;
+    invoice_number: string;
+    clientId:string;
+    paymentStatus: string;
+    billDate: string;
     dueDate: string;
-    amount: number;
-    items: {
-      id: number;
-      name: string;
-      quantity: number;
-      price: number;
-      tax: number;
-    }[];
+    total_amount: number;
+    items: Item[];
     isItemwiseTax: boolean;
     totalTaxRate: number;
+    total: number;
+    client:Client[];
+    invoice_id: string
   }
   
   export interface Business {
-    id: string;
+    _id: string;
     name: string;
   }
 

@@ -10,42 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useInvoiceHandler } from '@/handler/invoiceHandler'
-
-interface BusinessDetails {
-  name: string;
-  address: string;
-  contact: string;
-  email: string;
-  website: string;
-  gstNumber: string;
-}
-
-interface Client {
-  _id: string;
-  name: string;
-  contact: string;
-  gstNumber: string;
-}
-
-interface InvoiceItem {
-  _id: string;
-  name: string;
-  quantity: number;
-  price: number;
-  tax: number;
-}
-
-interface Invoice {
-  _id: string;
-  clientId: string;
-  items: InvoiceItem[];
-  total: number;
-  paymentStatus: 'paid' | 'due' | 'duedate';
-  dueDate?: string;
-  billDate: string;
-  isItemwiseTax: boolean;
-  totalTaxRate: number;
-}
+import { BusinessDetails, Invoice, Client, InvoiceItem } from '@/backend/types/type'
 
 interface InvoicePreviewProps {
   isInvoicePreviewOpen: boolean;
@@ -59,6 +24,7 @@ interface InvoicePreviewProps {
   clients: Client[];
   setInvoiceHistory: React.Dispatch<React.SetStateAction<Invoice[]>>;
   setCurrentInvoice: React.Dispatch<React.SetStateAction<Invoice | null>>;
+  isViewInvoiceHistory: boolean;
 }
 
 export function InvoicePreview({ 
@@ -72,12 +38,11 @@ export function InvoicePreview({
   onClose,
   clients,
   setInvoiceHistory,
-  setCurrentInvoice
+  setCurrentInvoice,
+  isViewInvoiceHistory
 }: InvoicePreviewProps) {
   const { handleSaveInvoice } = useInvoiceHandler(setInvoiceHistory, setIsInvoicePreviewOpen, setCurrentInvoice)
   const businessId = businessDetails._id;
-  
-  
   
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'dd/MM/yyyy')
@@ -98,7 +63,6 @@ export function InvoicePreview({
   const handleSave = () => {
     if (currentInvoice) {
       const invoiceWithBusinessId = { ...currentInvoice, businessId }
-      console.log("Invoice data being sent:", invoiceWithBusinessId)
       handleSaveInvoice(invoiceWithBusinessId)
     }
   }
@@ -125,13 +89,11 @@ export function InvoicePreview({
                 <h3 className="text-xl font-semibold">{businessDetails.name}</h3>
                 <p>{businessDetails.address}</p>
                 <p>Contact: {businessDetails.contact}</p>
-                <p>Email: {businessDetails.email || 'N/A'}</p>
-                <p>Website: {businessDetails.website || 'N/A'}</p>
                 <p>GST: {businessDetails.gstNumber}</p>
               </div>
               <div className="text-right">
                 <h3 className="text-lg font-semibold">Invoice Details</h3>
-                <p>Invoice ID: {currentInvoice._id}</p>
+                <p>Invoice ID: {currentInvoice.invoice_id}</p>
                 <p>Bill Date: {formatDate(currentInvoice.billDate)}</p>
                 {currentInvoice.paymentStatus === 'duedate' && currentInvoice.dueDate && (
                   <p>Due Date: {formatDate(currentInvoice.dueDate)}</p>
@@ -142,9 +104,9 @@ export function InvoicePreview({
 
             <div className="border-t pt-4">
               <h3 className="text-lg font-semibold mb-2">Client Information</h3>
-              <p>Name: {client.name}</p>
-              <p>Contact: {client.contact}</p>
-              <p>GST: {client.gstNumber}</p>
+              <p>Name: {currentInvoice.client.name}</p>
+              <p>Contact: {currentInvoice.client.contact}</p>
+              <p>GST: {currentInvoice.client.gst_number}</p>
             </div>
 
             <div>
@@ -180,15 +142,19 @@ export function InvoicePreview({
                 )}
               </div>
               <div className="text-xl font-semibold">
-                Total: ₹{currentInvoice.total.toFixed(2)}
+                Total: ₹{currentInvoice.total}
               </div>
             </div>
           </CardContent>
         </Card>
         <CardFooter className="flex justify-end space-x-2 mt-4">
           <Button variant="outline" onClick={onClose}>Close</Button>
-          <Button onClick={onEdit}>Edit</Button>
-          <Button onClick={() => handleSave()}>Save</Button>
+          {!isViewInvoiceHistory && (
+            <>
+              <Button onClick={onEdit}>Edit</Button>
+              <Button onClick={() => handleSave()}>Save</Button>
+            </>
+          )}
           <Button onClick={toPDF}>Print Invoice</Button>
         </CardFooter>
       </DialogContent>

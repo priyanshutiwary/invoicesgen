@@ -7,22 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Invoice, BusinessDetails } from '@/backend/types/type';
+import InvoicePreview from '@/components/InvoicePreview';
 
-interface BusinessDetails {
-  _id: string;
-  name: string;
-}
 
-interface Invoice {
-  _id: string;
-  invoice_number: string;
-  billDate: string;
-  invoice_date: string;
-  dueDate?: string;
-  total_amount: number;
-  paymentStatus: string;
-}
 
 interface HeaderProps {
   userName: string | undefined;
@@ -30,12 +19,13 @@ interface HeaderProps {
   invoiceHistory: Invoice[];
   handleViewInvoiceHistory: (businessId: string) => Promise<void>;
   handleViewInvoice: (invoice: Invoice) => void;
-  handleEditInvoice: (invoice: Invoice) => void;
+  // handleEditInvoice: (invoice: Invoice) => void;
   handleLogout: () => Promise<void>;
   setIsProfileOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleCreateBusiness: () => void;
   handleMarkPaid: (invoiceId: string) => Promise<void>;
   handleExtendDate: (invoiceId: string, newDate: Date) => Promise<void>;
+  
 }
 
 export function Header({ 
@@ -44,12 +34,13 @@ export function Header({
   invoiceHistory = [], 
   handleViewInvoiceHistory = async () => {}, 
   handleViewInvoice = () => {},
-  handleEditInvoice = () => {},
+  // handleEditInvoice = () => {},
   handleLogout = async () => {}, 
   setIsProfileOpen = () => {},
   handleCreateBusiness = () => {},
   handleMarkPaid = async () => {},
   handleExtendDate = async () => {}
+  
 }: HeaderProps) {
   const [isInvoiceHistoryOpen, setIsInvoiceHistoryOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,7 +52,7 @@ export function Header({
   const [hasLoadedInvoices, setHasLoadedInvoices] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
-
+  
   const itemsPerPage = 5;
 
   const refreshInvoiceHistory = useCallback(async () => {
@@ -138,7 +129,11 @@ export function Header({
   };
 
   const handleExtendDateConfirm = async () => {
+    console.log("handleExtendDateConfirm Reached ");
+    
     if (selectedInvoiceId && newDueDate) {
+      console.log(selectedInvoiceId,newDueDate);
+      
       await handleExtendDate(selectedInvoiceId, newDueDate);
       setExtendDateDialogOpen(false);
       setSelectedInvoiceId(null);
@@ -146,6 +141,7 @@ export function Header({
       await handleManualRefresh();
     }
   };
+  
 
   return (
     <div className=" bg-gradient-to-b from-gray-100 to-gray-200">
@@ -264,9 +260,9 @@ export function Header({
                 </TableHeader>
                 <TableBody>
                   {currentInvoices.map((invoice) => (
-                    <TableRow key={invoice._id} className="hover:bg-gray-50">
+                    <TableRow key={invoice.invoice_number} className="hover:bg-gray-50">
                       <TableCell className="font-medium text-gray-900">{invoice.invoice_number}</TableCell>
-                      <TableCell className="text-gray-600">{formatDate(invoice.billDate || invoice.invoice_date)}</TableCell>
+                      <TableCell className="text-gray-600">{formatDate(invoice.billDate || invoice.billDate)}</TableCell>
                       <TableCell className="text-gray-900">₹{invoice.total_amount.toFixed(2)}</TableCell>
                       <TableCell className="text-gray-600">{getStatusWithDueDate(invoice)}</TableCell>
                       <TableCell>
@@ -276,14 +272,14 @@ export function Header({
                             size="sm"
                             onClick={() => {
                               handleViewInvoice(invoice);
-                              setIsInvoiceHistoryOpen(false);
+                              // setIsInvoiceHistoryOpen(false);
                             }}
                             className="bg-blue-100 hover:bg-blue-200 text-blue-800"
                           >
                             <Eye className="w-4 h-4 mr-2" />
                             View
                           </Button>
-                          <Button 
+                          {/* <Button 
                             variant="secondary" 
                             size="sm"
                             onClick={() => {
@@ -294,7 +290,7 @@ export function Header({
                           >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
-                          </Button>
+                          </Button> */}
                           {(invoice.paymentStatus === 'due' || invoice.paymentStatus === 'duedate') && (
                             <>
                               <Button 
