@@ -1,6 +1,6 @@
 export interface BusinessDetails {
-    _id: string;
-    userId: string;
+    _id: string | number;
+    userId: string | number;
     name: string;
     contact: string;
     address: string;
@@ -8,7 +8,7 @@ export interface BusinessDetails {
     gstNumber: string;
   }
   export interface newBusinessDetails {
-    userId: string;
+    userId: string | number;
     name: string;
     email: string;
     address: string;
@@ -17,8 +17,8 @@ export interface BusinessDetails {
   }
   
   export interface Client {
-    businessId:string;
-    _id: string;
+    businessId:string | number;
+    _id: string | number;
     clientNumber: number;
     name: string;
     contact: string;
@@ -26,8 +26,8 @@ export interface BusinessDetails {
   }
   
   export interface Item {
-    businessId:string;
-    _id: string;
+    businessId:string | number;
+    _id: string | number;
     itemNumber:number;
     name: string;
     description: string;
@@ -36,10 +36,10 @@ export interface BusinessDetails {
   }
   
   export interface Invoice {
-    _id: string;
-    businessId: string;
+    _id: string | number;
+    businessId: string | number;
     invoice_number: string;
-    clientId:string;
+    clientId:string | number;
     paymentStatus: string;
     billDate: string;
     dueDate: string;
@@ -49,16 +49,16 @@ export interface BusinessDetails {
     totalTaxRate: number;
     total: number;
     client:Client[];
-    invoice_id: string
+    invoice_id: string| number;
   }
   
   export interface Business {
-    _id: string;
+    _id: string | number;
     name: string;
   }
 
   export interface InvoiceItem {
-    _id: string;
+    _id: string | number;
     name: string;
     quantity: number;
     price: number;

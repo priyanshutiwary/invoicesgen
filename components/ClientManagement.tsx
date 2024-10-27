@@ -45,12 +45,18 @@ export function ClientManagement({
 
   useEffect(() => {
     const filtered = clients.filter(client => 
-      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      client.contact.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (client.gstNumber?.toLowerCase() ?? '').includes(searchQuery.toLowerCase())
+      client &&
+      (client.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       client.contact?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       (client.gstNumber?.toLowerCase() ?? '').includes(searchQuery.toLowerCase()))
     );
+  
     setFilteredClients(filtered);
-  }, [searchQuery, clients]);
+  }, [clients, searchQuery]);
+  
+  
+  //   setFilteredClients(filtered);
+  // }, [searchQuery, clients]);
 
   return (
     <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 shadow-lg">

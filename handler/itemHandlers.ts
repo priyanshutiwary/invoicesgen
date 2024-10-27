@@ -11,7 +11,7 @@ export const useItemHandlers = (items,selectedBusinessId: string, setItems: Reac
     console.log("printed form data");
     console.log(selectedBusinessId);
     
-    console.log(formData);
+    
     const newItem: Omit<Item, 'id'> = {
       businessId:selectedBusinessId,
       name: formData.get('itemName') as string,
@@ -19,13 +19,13 @@ export const useItemHandlers = (items,selectedBusinessId: string, setItems: Reac
       price: parseFloat(formData.get('itemPrice') as string),
       tax: parseFloat(formData.get('itemTax') as string)
     }
-    console.log(newItem)
+    
     try {
       
       const response = await axios.post<ApiResponse>("/api/setItem", newItem)
       console.log(response);
       
-      setItems(prev => [...prev, response.data.item])
+      setItems(prev => [...prev, response.data.data])
       console.log('printed from here:s',items);
       
       setIsItemOpen(false)
@@ -55,7 +55,7 @@ export const useItemHandlers = (items,selectedBusinessId: string, setItems: Reac
     
     try {
       const response = await axios.put<ApiResponse>(`/api/setItem?businessId=${selectedBusinessId}&itemId=${itemId}`, updatedItem)
-      setItems(prev => prev.map(item => item._id === itemId ? response.data.item : item))
+      setItems(prev => prev.map(items => items._id === itemId ? response.data.data : items))
       setIsEditItemOpen(false)
       setEditingItem(null)
       toast({
@@ -110,7 +110,9 @@ export const useItemHandlers = (items,selectedBusinessId: string, setItems: Reac
     
     try {
       await axios.delete<ApiResponse>(`/api/setItem?businessId=${selectedBusinessId}&itemId=${id}`)
-      setItems(prev => prev.filter(item => item._id !== id))
+      setItems(prev => prev.filter(items => items._id !== id))
+      console.log(items);
+      
     } catch (error) {
       console.error('Error deleting item', error)
       toast({

@@ -41,11 +41,14 @@ export function ItemManagement({
 }: ItemManagementProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState<Item[] | undefined>(items);
+  
+  
 
   useEffect(() => {
     const filtered = items?.filter(item => 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.price.toString().includes(searchQuery.toLowerCase())
+      item&&
+      (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.price.toString().includes(searchQuery.toLowerCase()))
     );
     setFilteredItems(filtered);
   }, [searchQuery, items]);

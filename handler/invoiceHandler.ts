@@ -70,10 +70,19 @@ export const useInvoiceHandler = (
     setCurrentInvoice(invoice)
     setIsInvoicePreviewOpen(true)
   }
+  
   // mark payment as paid 
   const handleExtendDate = async (invoiceId: string, newDueDate: Date) => {
+    
+    const newDateInIsoDateString = new Date(newDueDate.getTime() - newDueDate.getTimezoneOffset() * 60000)
+    .toISOString()
+    .replace('Z', '+00:00');
+    console.log(newDateInIsoDateString);
+    
+    
+    
     try {
-      const response = await axios.patch(`/api/setInvoices/`, {  invoiceId:invoiceId,action:"extendDueDate" ,dueDate: newDueDate })
+      const response = await axios.patch(`/api/setInvoices/`, {  invoiceId:invoiceId,action:"extendDueDate" ,newDueDate: newDateInIsoDateString })
   
       if (response.data.success) {
         toast({
@@ -85,11 +94,11 @@ export const useInvoiceHandler = (
         
   
         // Update local state with the updated invoice
-        setInvoiceHistory(prevHistory =>
-          prevHistory.map(invoice =>
-            invoice._id === invoiceId ? { ...invoice, dueDate: newDueDate } : invoice
-          )
-        )
+        // setInvoiceHistory(prevHistory =>
+        //   prevHistory.map(invoice =>
+        //     invoice._id === invoiceId ? { ...invoice, dueDate: newDueDate } : invoice
+        //   )
+        // )
       } else {
         throw new Error(response.data.message || 'Failed to extend due date')
       }

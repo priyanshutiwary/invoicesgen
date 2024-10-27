@@ -35,6 +35,7 @@ const UserSchema = new Schema({
 
 // Client Schema (Sub-document)
 const ClientSchema = new mongoose.Schema({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   clientNumber: { type: Number }, // Incremental number field
   name: { type: String, required: true},
   contact: {
@@ -53,6 +54,7 @@ const ClientSchema = new mongoose.Schema({
 
 // Item Schema (Sub-document)
 const ItemSchema = new mongoose.Schema({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   itemNumber: { type: Number },
   name: { type: String, required: true},
   description: String,

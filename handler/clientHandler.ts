@@ -18,10 +18,14 @@ export const useClientHandlers = (selectedBusinessId: string, setClients: React.
     console.log(newClient)
     try {
       const response = await axios.post<ApiResponse>('/api/setClient', newClient)
-      console.log(response);
+      console.log(response.data.data);
       
-      setClients(prev => [...prev, response.data.data.clients])
+      
+      setClients(prev => [...prev, response.data.data]);
+      
+      
       setIsClientOpen(false)
+
     } catch (error) {
       console.error('Error adding client', error)
       toast({
