@@ -5,7 +5,8 @@ export interface BusinessDetails {
     contact: string;
     address: string;
     description: string;
-    gstNumber: string;
+    gstNumber : string;
+    
   }
   export interface newBusinessDetails {
     userId: string | number;
@@ -54,7 +55,13 @@ export interface BusinessDetails {
   
   export interface Business {
     _id: string | number;
+    userId: string | number;
     name: string;
+    contact: string;
+    address: string;
+    description: string;
+    gst_number : string;
+
   }
 
   export interface InvoiceItem {
@@ -63,4 +70,16 @@ export interface BusinessDetails {
     quantity: number;
     price: number;
     tax: number;
+  }
+
+  export interface UserProfile {
+    _id: string;
+    username: string;
+    contact: string;
+    created_at: string;
+    last_login: string | null;
+    isVerified: boolean;
+    createdAt: string;
+    updatedAt: string;
+    businesses: Business[];
   }
