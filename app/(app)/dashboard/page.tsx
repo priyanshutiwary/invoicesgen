@@ -271,7 +271,7 @@ export default function Dashboard() {
 	}
 
 	return (
-		<div className="flex flex-col w-full min-h-screen bg-gray-100">
+		<div className="flex flex-col w-full min-h-screen bg-gray-100 dark:bg-gray-900">
 			<Header
 				userName={userName}
 				businessDetails={businessDetails}
@@ -287,9 +287,9 @@ export default function Dashboard() {
 				userProfile={userDetail}
 				businesses={businesses}
 			/>
-			<main className="flex-1 p-4 md:p-6 space-y-6 overflow-auto">
+			<main className="flex-1 p-4 md:p-6 space-y-6 overflow-auto dark:bg-gray-800">
 				<div className="flex justify-between items-center">
-					<h1 className="text-2xl font-bold">Dashboard</h1>
+					<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
 					<BusinessSelector
 						businesses={businesses}
 						selectedBusinessId={selectedBusinessId}
@@ -370,12 +370,6 @@ export default function Dashboard() {
 				setCurrentInvoice={setCurrentInvoice}
 				isViewInvoiceHistory={isViewHistoryInvoice}
 			/>
-			{/* <InvoiceViewer
-        invoice={currentInvoice}
-        client={clients.find(client => client._id === currentInvoice?.clientId) || null}
-        isOpen={isInvoiceViewerOpen}
-        onClose={() => setIsInvoiceViewerOpen(false)}
-      /> */}
 			<CreateBusinessPopup
 				isOpen={isCreateBusinessOpen}
 				onClose={() => setIsCreateBusinessOpen(false)}

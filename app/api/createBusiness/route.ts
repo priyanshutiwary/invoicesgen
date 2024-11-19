@@ -1,6 +1,9 @@
 import connectDB from '@/backend/db/index.js';
 import { Business } from "@/backend/model/user";
 
+
+
+
 export async function POST(request: Request) {
   await connectDB();
 

@@ -61,36 +61,36 @@ export default function UserProfileComponent({
 	}
 
 	return (
-		<Card className="w-full max-w-md mx-auto bg-white shadow-lg rounded-xl overflow-hidden">
+		<Card className="w-full max-w-md mx-auto bg-white dark:bg-gray-900 shadow-lg rounded-xl overflow-hidden">
 			<CardHeader className="relative p-0">
-				<div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-700"></div>
+				<div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-600 dark:to-blue-900"></div>
 				<div className="relative flex flex-col items-center justify-center py-6 sm:py-10 text-white z-10">
-					<Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-white shadow-lg">
+					<Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-white dark:border-gray-800 shadow-lg">
 						<AvatarImage
 							src="/placeholder.svg?height=96&width=96"
 							alt={user.username}
 						/>
-						<AvatarFallback>
+						<AvatarFallback className="dark:bg-gray-700">
 							{user.username.charAt(0).toUpperCase()}
 						</AvatarFallback>
 					</Avatar>
-					<h2 className="mt-4 text-xl sm:text-2xl font-bold">
+					<h2 className="mt-4 text-xl sm:text-2xl font-bold text-white">
 						{user.username}
 					</h2>
-					<p className="text-sm sm:text-base text-blue-100">{user.contact}</p>
+					<p className="text-sm sm:text-base text-blue-100 dark:text-blue-200">{user.contact}</p>
 				</div>
 			</CardHeader>
-			<CardContent className="p-4 sm:p-6">
+			<CardContent className="p-4 sm:p-6 dark:bg-gray-900">
 				<Tabs defaultValue="details" className="w-full">
-					<TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6">
+					<TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6 dark:bg-gray-800">
 						<TabsTrigger
 							value="details"
-							className="text-sm sm:text-base data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all duration-200">
+							className="text-sm sm:text-base data-[state=active]:bg-blue-600 data-[state=active]:text-white dark:text-gray-200 dark:data-[state=active]:bg-blue-700 transition-all duration-200">
 							Account Details
 						</TabsTrigger>
 						<TabsTrigger
 							value="businesses"
-							className="text-sm sm:text-base data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all duration-200">
+							className="text-sm sm:text-base data-[state=active]:bg-blue-600 data-[state=active]:text-white dark:text-gray-200 dark:data-[state=active]:bg-blue-700 transition-all duration-200">
 							My Businesses
 						</TabsTrigger>
 					</TabsList>
@@ -104,7 +104,7 @@ export default function UserProfileComponent({
 								<div className="space-y-2">
 									<Label
 										htmlFor="username"
-										className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+										className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
 										<User className="h-4 w-4" />
 										<span>Username</span>
 									</Label>
@@ -115,13 +115,13 @@ export default function UserProfileComponent({
 											handleProfileEdit('username', e.target.value)
 										}
 										disabled={!isEditing}
-										className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+										className="border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
 									/>
 								</div>
 								<div className="space-y-2">
 									<Label
 										htmlFor="email"
-										className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+										className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
 										<Mail className="h-4 w-4" />
 										<span>Email</span>
 									</Label>
@@ -132,38 +132,38 @@ export default function UserProfileComponent({
 											handleProfileEdit('contact', e.target.value)
 										}
 										disabled={!isEditing}
-										className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+										className="border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
 									/>
 								</div>
-								<Separator className="my-4 sm:my-6" />
+								<Separator className="my-4 sm:my-6 dark:bg-gray-700" />
 								<div className="space-y-3 sm:space-y-4">
 									<div>
-										<Label className="text-sm font-medium text-gray-700">
+										<Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
 											Account Created
 										</Label>
-										<p className="mt-1 text-sm text-gray-600">
+										<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
 											{formatDate(user.createdAt)}
 										</p>
 									</div>
 									<div>
-										<Label className="text-sm font-medium text-gray-700">
+										<Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
 											Last Login
 										</Label>
-										<p className="mt-1 text-sm text-gray-600">
+										<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
 											{user.last_login ? formatDate(user.last_login) : 'Never'}
 										</p>
 									</div>
 									<div>
-										<Label className="text-sm font-medium text-gray-700">
+										<Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
 											Account Status
 										</Label>
 										<p className="mt-1 text-sm">
 											{user.isVerified ? (
-												<span className="text-green-600 font-medium">
+												<span className="text-green-600 dark:text-green-400 font-medium">
 													Verified
 												</span>
 											) : (
-												<span className="text-yellow-600 font-medium">
+												<span className="text-yellow-600 dark:text-yellow-400 font-medium">
 													Unverified
 												</span>
 											)}
@@ -178,7 +178,7 @@ export default function UserProfileComponent({
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.5 }}
 								className="space-y-4 sm:space-y-6">
-								<Label className="text-base sm:text-lg font-medium flex items-center space-x-2 text-gray-700">
+								<Label className="text-base sm:text-lg font-medium flex items-center space-x-2 text-gray-700 dark:text-gray-300">
 									<Building2 className="h-5 w-5" />
 									<span>Your Businesses</span>
 								</Label>
@@ -192,10 +192,10 @@ export default function UserProfileComponent({
 												transition={{ duration: 0.3 }}
 												>
 												<Button
-                                                    onClick={openBusinessDetail}
+													onClick={openBusinessDetail}
 													variant="outline"
-													className="w-full justify-start hover:bg-blue-50 transition-colors duration-200">
-													<Building2 className="h-4 w-4 mr-2 text-blue-600" />
+													className="w-full justify-start hover:bg-blue-50 dark:hover:bg-blue-900/30 dark:border-gray-700 dark:text-gray-200 transition-colors duration-200">
+													<Building2 className="h-4 w-4 mr-2 text-blue-600 dark:text-blue-400" />
 													<span className="truncate">
 														{business.name}({business.gst_number})
 													</span>
@@ -204,11 +204,11 @@ export default function UserProfileComponent({
 										))}
 									</ul>
 								) : (
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-gray-600 dark:text-gray-400">
 										You haven't added any businesses yet.
 									</p>
 								)}
-								<Button className="w-full bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+								<Button className="w-full bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200">
 									Add New Business
 								</Button>
 							</motion.div>
@@ -225,13 +225,13 @@ export default function UserProfileComponent({
 							className="flex flex-col sm:flex-row justify-between mt-4 sm:mt-6 space-y-2 sm:space-y-0 sm:space-x-2">
 							<Button
 								variant="outline"
-								className="w-full sm:w-1/2 border-gray-300 hover:bg-gray-100 transition-colors duration-200"
+								className="w-full sm:w-1/2 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200 transition-colors duration-200"
 								onClick={() => setIsEditing(false)}>
 								<X className="h-4 w-4 mr-2" />
 								Cancel
 							</Button>
 							<Button
-								className="w-full sm:w-1/2 bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
+								className="w-full sm:w-1/2 bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
 								onClick={saveChanges}>
 								<Check className="h-4 w-4 mr-2" />
 								Save Changes
@@ -244,7 +244,7 @@ export default function UserProfileComponent({
 							exit={{ opacity: 0, y: 20 }}
 							transition={{ duration: 0.3 }}>
 							<Button
-								className="w-full mt-4 sm:mt-6 bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
+								className="w-full mt-4 sm:mt-6 bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
 								onClick={() => setIsEditing(true)}>
 								<Pencil className="h-4 w-4 mr-2" />
 								Edit Profile
@@ -254,7 +254,7 @@ export default function UserProfileComponent({
 				</AnimatePresence>
 				<Button
 					onClick={onClose}
-					className="w-full mt-4 bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors duration-200">
+					className="w-full mt-4 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-200">
 					Close
 				</Button>
 			</CardContent>

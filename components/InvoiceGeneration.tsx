@@ -301,27 +301,27 @@ export function InvoiceGeneration({
   }, [setInvoiceData, setInvoiceItems])
 
   return (
-    <Card className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 shadow-lg">
+    <Card className="w-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-xl md:text-2xl font-bold text-blue-800">Generate Invoice</CardTitle>
-        <CardDescription className="text-sm md:text-base text-blue-600">Create a new invoice for your clients</CardDescription>
+        <CardTitle className="text-xl md:text-2xl font-bold text-blue-800 dark:text-blue-400">Generate Invoice</CardTitle>
+        <CardDescription className="text-sm md:text-base text-blue-600 dark:text-blue-300">Create a new invoice for your clients</CardDescription>
       </CardHeader>
       <CardContent>
         <Dialog open={isInvoiceOpen} onOpenChange={setIsInvoiceOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+            <Button className="w-full bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 text-white">
               Generate Invoice
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[90vw] md:max-w-[800px] max-h-[90vh] overflow-auto">
+          <DialogContent className="sm:max-w-[90vw] md:max-w-[800px] max-h-[90vh] overflow-auto dark:bg-gray-900">
             <DialogHeader>
-              <DialogTitle className="text-lg md:text-xl">Generate New Invoice</DialogTitle>
-              <DialogDescription className="text-sm md:text-base">Fill in the details to create a new invoice</DialogDescription>
+              <DialogTitle className="text-lg md:text-xl dark:text-blue-400">Generate New Invoice</DialogTitle>
+              <DialogDescription className="text-sm md:text-base dark:text-blue-300">Fill in the details to create a new invoice</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleCreateInvoice} className="space-y-4 md:space-y-6">
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle className="text-base md:text-lg">Client Information</CardTitle>
+                  <CardTitle className="text-base md:text-lg dark:text-blue-400">Client Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-2">
@@ -333,7 +333,7 @@ export function InvoiceGeneration({
                         setInvoiceData((prev) => ({ ...prev, isNewClient: checked }))
                       }}
                     />
-                    <Label htmlFor="new-client" className="text-sm md:text-base">New Client</Label>
+                    <Label htmlFor="new-client" className="text-sm md:text-base dark:text-gray-200">New Client</Label>
                   </div>
                   {isNewClient ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -347,6 +347,7 @@ export function InvoiceGeneration({
                             newClient: { ...prev.newClient, name: e.target.value },
                           }))
                         }}
+                        className="dark:bg-gray-800 dark:border-gray-700"
                       />
                       <Input
                         placeholder="Contact"
@@ -358,6 +359,7 @@ export function InvoiceGeneration({
                             newClient: { ...prev.newClient, contact: e.target.value },
                           }))
                         }}
+                        className="dark:bg-gray-800 dark:border-gray-700"
                       />
                       <Input
                         placeholder="GST Number"
@@ -369,6 +371,7 @@ export function InvoiceGeneration({
                             newClient: { ...prev.newClient, gstNumber: e.target.value },
                           }))
                         }}
+                        className="dark:bg-gray-800 dark:border-gray-700"
                       />
                     </div>
                   ) : (
@@ -379,10 +382,10 @@ export function InvoiceGeneration({
                         setInvoiceData((prev) => ({ ...prev, clientId: value }))
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200">
                         <SelectValue placeholder="Select a client" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="dark:bg-gray-800">
                         {clients && clients.length > 0 ? (
                           clients.map((client) =>
                             client && client._id ? (
@@ -400,9 +403,9 @@ export function InvoiceGeneration({
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle className="text-base md:text-lg">Invoice Items</CardTitle>
+                  <CardTitle className="text-base md:text-lg dark:text-blue-400">Invoice Items</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-2 md:space-y-0 md:space-x-2">
@@ -415,20 +418,21 @@ export function InvoiceGeneration({
                           setInvoiceData((prev) => ({ ...prev, isItemwiseTax: checked }))
                         }}
                       />
-                      <Label htmlFor="itemwise-tax" className="text-sm md:text-base">Itemwise Tax</Label>
+                      <Label htmlFor="itemwise-tax" className="text-sm md:text-base dark:text-gray-200">Itemwise Tax</Label>
                     </div>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={handleClearAllItems}
+                      className="dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
                     >
                       <Trash2 className="h-4 w-4 mr-2" /> Clear All
                     </Button>
                   </div>
                   {!isItemwiseTax && (
                     <div className="flex items-center space-x-2">
-                      <Label htmlFor="totalTaxRate" className="text-sm md:text-base">Total Tax Rate (%)</Label>
+                      <Label htmlFor="totalTaxRate" className="text-sm md:text-base dark:text-gray-200">Total Tax Rate (%)</Label>
                       <Input
                         id="totalTaxRate"
                         type="number"
@@ -438,32 +442,32 @@ export function InvoiceGeneration({
                           setTotalTaxRate(value)
                           setInvoiceData((prev) => ({ ...prev, totalTaxRate: value }))
                         }}
-                        className="w-20"
+                        className="w-20 dark:bg-gray-800 dark:border-gray-700"
                       />
                     </div>
                   )}
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead className="text-xs md:text-sm">Name</TableHead>
-                          <TableHead className="text-xs md:text-sm">Quantity</TableHead>
-                          <TableHead className="text-xs md:text-sm">Price</TableHead>
-                          {isItemwiseTax && <TableHead className="text-xs md:text-sm">Tax (%)</TableHead>}
-                          <TableHead className="text-xs md:text-sm">Total</TableHead>
-                          <TableHead className="text-xs md:text-sm"></TableHead>
+                        <TableRow className="dark:bg-gray-800">
+                          <TableHead className="text-xs md:text-sm dark:text-gray-200">Name</TableHead>
+                          <TableHead className="text-xs md:text-sm dark:text-gray-200">Quantity</TableHead>
+                          <TableHead className="text-xs md:text-sm dark:text-gray-200">Price</TableHead>
+                          {isItemwiseTax && <TableHead className="text-xs md:text-sm dark:text-gray-200">Tax (%)</TableHead>}
+                          <TableHead className="text-xs md:text-sm dark:text-gray-200">Total</TableHead>
+                          <TableHead className="text-xs md:text-sm dark:text-gray-200"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {invoiceItems.map((item) => (
-                          <TableRow key={item._id}>
-                            <TableCell className="text-xs md:text-sm">{item.name}</TableCell>
+                          <TableRow key={item._id} className="dark:hover:bg-gray-700">
+                            <TableCell className="text-xs md:text-sm dark:text-gray-300">{item.name}</TableCell>
                             <TableCell>
                               <Input
                                 type="number"
                                 value={item.quantity}
                                 onChange={(e) => handleEditInvoiceItem(item._id, 'quantity', e.target.value)}
-                                className="w-16 md:w-20 text-xs md:text-sm"
+                                className="w-16 md:w-20 text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700"
                               />
                             </TableCell>
                             <TableCell>
@@ -471,7 +475,7 @@ export function InvoiceGeneration({
                                 type="number"
                                 value={item.price}
                                 onChange={(e) => handleEditInvoiceItem(item._id, 'price', e.target.value)}
-                                className="w-20 md:w-24 text-xs md:text-sm"
+                                className="w-20 md:w-24 text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700"
                               />
                             </TableCell>
                             {isItemwiseTax && (
@@ -480,11 +484,11 @@ export function InvoiceGeneration({
                                   type="number"
                                   value={item.tax || 0}
                                   onChange={(e) => handleEditInvoiceItem(item._id, 'tax', e.target.value)}
-                                  className="w-16 md:w-20 text-xs md:text-sm"
+                                  className="w-16 md:w-20 text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700"
                                 />
                               </TableCell>
                             )}
-                            <TableCell className="text-xs md:text-sm">
+                            <TableCell className="text-xs md:text-sm dark:text-gray-300">
                               ₹
                               {(
                                 item.quantity *
@@ -497,6 +501,7 @@ export function InvoiceGeneration({
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleRemoveInvoiceItem(item._id)}
+                                className="dark:hover:bg-gray-700"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -512,7 +517,7 @@ export function InvoiceGeneration({
                       checked={isManualEntry}
                       onCheckedChange={setIsManualEntry}
                     />
-                    <Label htmlFor="manual-entry" className="text-sm md:text-base">Manual Entry</Label>
+                    <Label htmlFor="manual-entry" className="text-sm md:text-base dark:text-gray-200">Manual Entry</Label>
                   </div>
                   <div className="flex flex-col md:flex-row items-start md:items-end gap-2">
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-2 w-full md:flex-grow">
@@ -525,14 +530,14 @@ export function InvoiceGeneration({
                               prev ? { ...prev, name: e.target.value } : null
                             )
                           }
-                          className="text-xs md:text-sm"
+                          className="text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700"
                         />
                       ) : (
                         <Select onValueChange={handleSelectItem}>
-                          <SelectTrigger className="text-xs md:text-sm">
+                          <SelectTrigger className="text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200">
                             <SelectValue placeholder="Select an item" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="dark:bg-gray-800">
                             {items && items.length > 0 ? (
                               items.map((item) =>
                                 item && item._id ? (
@@ -552,7 +557,7 @@ export function InvoiceGeneration({
                         placeholder="Quantity"
                         value={itemQuantity}
                         onChange={(e) => setItemQuantity(parseInt(e.target.value))}
-                        className="text-xs md:text-sm"
+                        className="text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700"
                       />
                       <Input
                         type="number"
@@ -564,7 +569,7 @@ export function InvoiceGeneration({
                           )
                         }
                         readOnly={!isManualEntry}
-                        className="text-xs md:text-sm"
+                        className="text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700"
                       />
                       {isItemwiseTax && (
                         <Input
@@ -577,10 +582,10 @@ export function InvoiceGeneration({
                             )
                           }
                           readOnly={!isManualEntry}
-                          className="text-xs md:text-sm"
+                          className="text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700"
                         />
                       )}
-                      <Button type="button" onClick={handleAddInvoiceItem} className="w-full md:w-auto">
+                      <Button type="button" onClick={handleAddInvoiceItem} className="w-full md:w-auto dark:bg-blue-700 dark:hover:bg-blue-600">
                         <Plus className="h-4 w-4 mr-2" /> Add
                       </Button>
                     </div>
@@ -588,39 +593,40 @@ export function InvoiceGeneration({
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle className="text-base md:text-lg">Payment Information</CardTitle>
+                  <CardTitle className="text-base md:text-lg dark:text-blue-400">Payment Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-sm md:text-base">Payment Status</Label>
+                    <Label className="text-sm md:text-base dark:text-gray-200">Payment Status</Label>
                     <RadioGroup
                       value={paymentStatus}
                       onValueChange={(value: 'paid' | 'due' | 'duedate') => {
                         setPaymentStatus(value)
                         setInvoiceData((prev) => ({ ...prev, paymentStatus: value }))
                       }}
+                      className="dark:text-gray-200"
                     >
                       <div className="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-4">
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="paid" id="paid" />
-                          <Label htmlFor="paid" className="text-sm md:text-base">Paid</Label>
+                          <Label htmlFor="paid" className="text-sm md:text-base dark:text-gray-200">Paid</Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="due" id="due" />
-                          <Label htmlFor="due" className="text-sm md:text-base">Due</Label>
+                          <Label htmlFor="due" className="text-sm md:text-base dark:text-gray-200">Due</Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="duedate" id="duedate" />
-                          <Label htmlFor="duedate" className="text-sm md:text-base">Due Date</Label>
+                          <Label htmlFor="duedate" className="text-sm md:text-base dark:text-gray-200">Due Date</Label>
                         </div>
                       </div>
                     </RadioGroup>
                   </div>
                   {paymentStatus === 'duedate' && (
                     <div className="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-2">
-                      <Label htmlFor="dueDate" className="text-sm md:text-base">Due Date</Label>
+                      <Label htmlFor="dueDate" className="text-sm md:text-base dark:text-gray-200">Due Date</Label>
                       <Input
                         id="dueDate"
                         type="date"
@@ -629,12 +635,12 @@ export function InvoiceGeneration({
                           setDueDate(e.target.value)
                           setInvoiceData((prev) => ({ ...prev, dueDate: e.target.value }))
                         }}
-                        className="w-full md:w-auto text-xs md:text-sm"
+                        className="w-full md:w-auto text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700"
                       />
                     </div>
                   )}
                   <div className="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-2">
-                    <Label htmlFor="billDate" className="text-sm md:text-base">Bill Generation Date</Label>
+                    <Label htmlFor="billDate" className="text-sm md:text-base dark:text-gray-200">Bill Generation Date</Label>
                     <Input
                       id="billDate"
                       type="date"
@@ -643,21 +649,31 @@ export function InvoiceGeneration({
                         setBillDate(e.target.value)
                         setInvoiceData((prev) => ({ ...prev, billDate: e.target.value }))
                       }}
-                      className="w-full md:w-auto text-xs md:text-sm"
+                      className="w-full md:w-auto text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700"
                     />
                   </div>
                 </CardContent>
               </Card>
 
               <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                <div className="text-base md:text-lg font-semibold">
+                <div className="text-base md:text-lg font-semibold dark:text-gray-200">
                   Total: ₹{calculateTotal().toFixed(2)}
                 </div>
                 <div className="flex space-x-2">
-                  <Button type="button" variant="outline" onClick={handleClearForm}>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleClearForm}
+                    className="dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                  >
                     Clear
                   </Button>
-                  <Button type="submit">Create Invoice</Button>
+                  <Button 
+                    type="submit"
+                    className="dark:bg-blue-700 dark:hover:bg-blue-600"
+                  >
+                    Create Invoice
+                  </Button>
                 </div>
               </div>
             </form>

@@ -76,74 +76,78 @@ export default function SignInForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-purple-100 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg relative">
-        <Button
-          variant="ghost"
-          onClick={() => window.location.href = '/'}
-          className="absolute top-4 left-4"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-        
-        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
-          Login to InvoiceGen
-        </h2>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input
-                id="email"
-                type="email"
-                className="pl-10"
-                {...register('email')}
-                disabled={isLoading}
-                aria-invalid={errors.email ? 'true' : 'false'}
-              />
-            </div>
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input
-                id="password"
-                type="password"
-                className="pl-10"
-                {...register('password')}
-                disabled={isLoading}
-                aria-invalid={errors.password ? 'true' : 'false'}
-              />
-            </div>
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
-            )}
-          </div>
-
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={isLoading}
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-purple-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 p-8 rounded-lg shadow-lg relative">
+        <div className="absolute top-0 left-0 p-4">
+          <Button
+            variant="ghost"
+            onClick={() => window.location.href = '/'}
+            className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+            aria-label="Go back"
           >
-            {isLoading ? 'Loading...' : 'Login'}
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
           </Button>
-        </form>
+        </div>
+        
+        <div className="mt-8">
+          <h2 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">
+            Login to InvoiceGen
+          </h2>
+          
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+                <Input
+                  id="email"
+                  type="email"
+                  className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-blue-500 dark:focus:ring-blue-400"
+                  {...register('email')}
+                  disabled={isLoading}
+                  aria-invalid={errors.email ? 'true' : 'false'}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-sm text-red-500 dark:text-red-400">{errors.email.message}</p>
+              )}
+            </div>
 
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Don&apos;t have an account?{' '}
-          <Link href="/sign-up" className="text-blue-600 hover:underline font-medium">
-            Sign up
-          </Link>
-        </p>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+                <Input
+                  id="password"
+                  type="password"
+                  className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-blue-500 dark:focus:ring-blue-400"
+                  {...register('password')}
+                  disabled={isLoading}
+                  aria-invalid={errors.password ? 'true' : 'false'}
+                />
+              </div>
+              {errors.password && (
+                <p className="text-sm text-red-500 dark:text-red-400">{errors.password.message}</p>
+              )}
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 text-white"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Loading...' : 'Login'}
+            </Button>
+          </form>
+
+          <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+            Don&apos;t have an account?{' '}
+            <Link href="/sign-up" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

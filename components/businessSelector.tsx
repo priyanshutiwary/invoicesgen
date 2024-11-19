@@ -18,7 +18,7 @@ export default function BusinessSelector({ businesses, selectedBusinessId, onBus
     
     <Select onValueChange={onBusinessChange} value={selectedBusinessId}>
       
-      <SelectTrigger className="w-[200px] bg-blue-100">
+      <SelectTrigger className="w-[200px] bg-blue-100 dark:bg-blue-950">
         <SelectValue placeholder="Select a business" />
       </SelectTrigger>
       <SelectContent>
