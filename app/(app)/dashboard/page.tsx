@@ -172,6 +172,8 @@ export default function Dashboard() {
 				const response = await axios.get<ApiResponse>(
 					`/api/getUserBusinesses?user_id=${user_id}`
 				)
+				console.log(response);
+				
 				setBusinesses(response.data.businesses)
 
 				if (response.data.businesses.length > 0 && !selectedBusinessId) {
@@ -189,7 +191,7 @@ export default function Dashboard() {
 
 					setClients(response.data.businesses[0].clients)
 					setItems(response.data.businesses[0].items)
-					setInvoiceHistory(response.data.businesses[0])
+					
 				}
 			} catch (error) {
 				console.error('Error fetching businesses', error)
