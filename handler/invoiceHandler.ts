@@ -68,6 +68,8 @@ export const useInvoiceHandler = (
 
   const handleViewInvoice = (invoice: Invoice) => {
     setCurrentInvoice(invoice)
+    
+    
     setIsInvoicePreviewOpen(true)
   }
   
@@ -146,6 +148,33 @@ export const useInvoiceHandler = (
       })
     }
   }
+
+  const handleDeleteInvoice = async (invoiceId: string) => {
+    try {
+      const response = await axios.delete(`/api/setInvoices/${invoiceId}`)
+  
+      if (response.data.success) {
+        toast({
+          title: 'Invoice Deleted',
+          description: 'Invoice has been successfully deleted.',
+        })
+  
+        // Update local state to remove the deleted invoice
+        setInvoiceHistory(prevHistory =>
+          prevHistory.filter(invoice => invoice._id !== invoiceId)
+        )
+      } else {
+        throw new Error(response.data.message || 'Failed to delete invoice')
+      }
+    } catch (error) {
+      console.error('Error deleting invoice:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to delete invoice',
+        variant: 'destructive',
+      })
+    }
+  }
   
 
   return {
@@ -153,7 +182,8 @@ export const useInvoiceHandler = (
     handleViewInvoiceHistory,
     handleViewInvoice,
     handleExtendDate,
-    handleMarkPayment
+    handleMarkPayment,
+    handleDeleteInvoice
   }
 }
 

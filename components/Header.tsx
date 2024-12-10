@@ -17,6 +17,7 @@ import { ThemeToggle } from "./theme-toggle"
 interface HeaderProps {
   userName: string | undefined
   businesses:Business[]
+  selectedBusinessId: string
   businessDetails: BusinessDetails
   invoiceHistory: Invoice[]
   handleViewInvoiceHistory: (businessId: string) => Promise<void>
@@ -52,6 +53,7 @@ export function Header({
   userName = "User",
   businesses=[],
   businessDetails = { _id: "", name: "Business" },
+  selectedBusinessId,
   invoiceHistory = [],
   handleViewInvoiceHistory,
   handleViewInvoice,
@@ -254,6 +256,7 @@ export function Header({
       </header>
 
       <InvoiceHistory
+      	selectedBusinessId={selectedBusinessId}
         isOpen={isInvoiceHistoryOpen}
         setIsOpen={setIsInvoiceHistoryOpen}
         invoiceHistory={invoiceHistory}

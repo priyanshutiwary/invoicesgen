@@ -17,6 +17,7 @@ import { CalendarIcon, FileTextIcon, UserIcon, CreditCardIcon, TruckIcon } from 
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface InvoicePreviewProps {
+  selectedBusinessId: string
   isInvoicePreviewOpen: boolean;
   setIsInvoicePreviewOpen: React.Dispatch<React.SetStateAction<boolean>>;
   currentInvoice: Invoice | null;
@@ -25,6 +26,7 @@ interface InvoicePreviewProps {
   toPDF: () => void;
   onEdit: () => void;
   onClose: () => void;
+  onDelete: () => void;
   clients: Client[];
   setInvoiceHistory: React.Dispatch<React.SetStateAction<Invoice[]>>;
   setCurrentInvoice: React.Dispatch<React.SetStateAction<Invoice | null>>;
@@ -32,6 +34,7 @@ interface InvoicePreviewProps {
 }
 
 export function InvoicePreview({ 
+  selectedBusinessId,
   isInvoicePreviewOpen, 
   setIsInvoicePreviewOpen, 
   currentInvoice, 
@@ -40,13 +43,14 @@ export function InvoicePreview({
   toPDF,
   onEdit,
   onClose,
+  onDelete,
   clients,
   setInvoiceHistory,
   setCurrentInvoice,
   isViewInvoiceHistory
 }: InvoicePreviewProps) {
-  const { handleSaveInvoice } = useInvoiceHandler(setInvoiceHistory, setIsInvoicePreviewOpen, setCurrentInvoice)
-  const businessId = businessDetails._id;
+  const { handleSaveInvoice,handleDeleteInvoice } = useInvoiceHandler(setInvoiceHistory, setIsInvoicePreviewOpen, setCurrentInvoice)
+  const businessId = selectedBusinessId;
   
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'dd MMM yyyy')
@@ -79,6 +83,14 @@ export function InvoicePreview({
     if (currentInvoice) {
       const invoiceWithBusinessId = { ...currentInvoice, businessId }
       handleSaveInvoice(invoiceWithBusinessId)
+      console.log(invoiceWithBusinessId);
+      
+    }
+  }
+
+  const handleDelete = () => {
+    if  (currentInvoice){
+      handleDeleteInvoice(businessId)
     }
   }
 
@@ -221,16 +233,42 @@ export function InvoicePreview({
           </Card>
         </ScrollArea>
 
-        <CardFooter className="flex flex-wrap justify-end gap-2 p-4 sm:p-6 bg-background dark:bg-gray-900 border-t dark:border-gray-800 sticky bottom-0">
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-            className="dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
-          >
-            Close
-          </Button>
-          {!isViewInvoiceHistory && (
+        <CardFooter className="flex flex-wrap justify-between gap-2 p-4 sm:p-6 bg-background dark:bg-gray-900 border-t dark:border-gray-800 sticky bottom-0">
+          {isViewInvoiceHistory ? (
             <>
+              <Button 
+                variant="secondary" 
+                onClick={handleDelete}
+                className="dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
+              >
+                Delete
+              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={onClose}
+                  className="dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  Close
+                </Button>
+                <Button 
+                  variant="primary" 
+                  onClick={toPDF}
+                  className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+                >
+                  Print Invoice
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="flex w-full justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={onClose}
+                className="dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+              >
+                Close
+              </Button>
               <Button 
                 variant="secondary" 
                 onClick={onEdit}
@@ -245,15 +283,15 @@ export function InvoicePreview({
               >
                 Save
               </Button>
-            </>
+              <Button 
+                variant="primary" 
+                onClick={toPDF}
+                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+              >
+                Print Invoice
+              </Button>
+            </div>
           )}
-          <Button 
-            variant="primary" 
-            onClick={toPDF}
-            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
-          >
-            Print Invoice
-          </Button>
         </CardFooter>
       </DialogContent>
     </Dialog>

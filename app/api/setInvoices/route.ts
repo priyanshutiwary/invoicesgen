@@ -1,6 +1,6 @@
 import connectDB from '@/backend/db/index.js';
 import { Business, Invoice,Activity } from "@/backend/model/user";
-import { InvoiceItem } from '@/backend/types/type';
+import { InvoiceItem, Client } from '@/backend/types/type';
 
 export async function POST(request: Request) {
   await connectDB();
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       isItemwiseTax, 
       totalTaxRate,
       invoice_id,
-      
+      client
     } = await request.json();
     
     console.log('Incoming Invoice Data:', { 
@@ -30,11 +30,14 @@ export async function POST(request: Request) {
       billDate, 
       isItemwiseTax, 
       totalTaxRate,
-      invoice_id
+      invoice_id,
+      client
       
     });
-
-    if (!businessId || !clientId || !items || !total || !paymentStatus || !billDate || isItemwiseTax === undefined) {
+//!clientId || 
+    if (!businessId || !items || !total || !paymentStatus || !billDate || isItemwiseTax === undefined) {
+      
+      
       return new Response(
         JSON.stringify({
           success: false,
@@ -43,6 +46,9 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    console.log("reached");
+    
+    
 
     const business = await Business.findById(businessId);
 
@@ -56,41 +62,43 @@ export async function POST(request: Request) {
       );
     }
 
-    const clientExists = business.clients.some(client => client._id.toString() === clientId);
-    if (!clientExists) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          message: 'Client not found for this business.',
-        }),
-        { status: 404 }
-      );
-    }
+    // const clientExists = business.clients.some(client => client._id.toString() === clientId);
+    // if (!clientExists) {
+    //   return new Response(
+    //     JSON.stringify({
+    //       success: false,
+    //       message: 'Client not found for this business.',
+    //     }),
+    //     { status: 404 }
+    //   );
+    // }
 
-    for (const item of items) {
-      const itemExists = business.items.some(businessItem => businessItem._id.toString() === item._id);
-      if (!itemExists) {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            message: `Item with ID ${item._id} not found in business inventory.`,
-          }),
-          { status: 400 }
-        );
-      }
-    }
+    // for (const item of items) {
+    //   const itemExists = business.items.some(businessItem => businessItem._id.toString() === item._id);
+    //   if (!itemExists) {
+    //     return new Response(
+    //       JSON.stringify({
+    //         success: false,
+    //         message: `Item with ID ${item._id} not found in business inventory.`,
+    //       }),
+    //       { status: 400 }
+    //     );
+    //   }
+    // }
 
-    const lastInvoice = await Invoice.findOne().sort({ createdAt: -1 });
+    // Find the last invoice for this specific business
+    const lastInvoice = await Invoice.findOne({ business: businessId }).sort({ createdAt: -1 });
     const lastInvoiceNumber = lastInvoice ? parseInt(lastInvoice.invoice_number.split('-')[1]) : 0;
     const newInvoiceNumber = `INV-${(lastInvoiceNumber + 1).toString().padStart(6, '0')}`;
 
     const newInvoice = new Invoice({
       business: businessId,
-      client: clientId,
-      invoice_id:invoice_id,
+      
+      invoice_id: invoice_id,
       invoice_number: newInvoiceNumber,
       items: items.map((item: InvoiceItem) => ({
-        item: item._id,
+        item: String(item._id).startsWith('temp-') ? undefined : item._id,
+        name: item.name,
         quantity: item.quantity,
         price: item.price,
         tax: item.tax
@@ -102,7 +110,13 @@ export async function POST(request: Request) {
       billDate: billDate,
       isItemwiseTax,
       totalTaxRate,
-      total:total
+      total:total,
+      client: {
+        ...(client._id.startsWith('new-') ? {} : { clientId: clientId }),
+        name: client.name,
+        contact: client.contact,
+        gst_number: client.gst_number
+      },
       
     });
 
@@ -205,6 +219,8 @@ export async function GET(request: Request) {
     }
 
     // Return the fetched invoices data
+    console.log(invoices);
+    
     return new Response(
       JSON.stringify({
         success: true,

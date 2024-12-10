@@ -113,7 +113,24 @@ const BusinessSchema = new Schema({
 // Invoice Schema
 const InvoiceSchema = new Schema({
   business: { type: Schema.Types.ObjectId, ref: 'Business', required: true },
-  client: { type: Schema.Types.ObjectId, ref: 'Business.clients', required: true },
+  
+  client:{
+    clientId: { type: Schema.Types.ObjectId, ref: 'Business.clients'},
+    
+    name: { type: String, required: true},
+    contact: {
+      type: String,
+      
+      validate: {
+        validator: function (v: string) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || /^\d{10}$/.test(v);
+        },
+        message: (props: { value: string }) =>
+          `${props.value} is not a valid email or mobile number!`,
+      },
+    },
+    gst_number: { type: String}
+  },
   invoice_id: {type: String, required: true},
   invoice_number: { type: String, required: true },
   billDate: { type: Date, required: true },
@@ -123,7 +140,8 @@ const InvoiceSchema = new Schema({
   isItemwiseTax: { type: Boolean, required: true },
   totalTaxRate: { type: Number },
   items: [{
-    item: { type: Schema.Types.ObjectId, ref: 'Business.items', required: true },
+    item: { type: Schema.Types.ObjectId, ref: 'Business.items'},
+    name: { type:String, required: true},
     quantity: { type: Number, required: true },
     price: { type: Number, required: true },
     tax: { type: Number, required: true }

@@ -19,6 +19,7 @@ interface InvoiceHistoryProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
   invoiceHistory: Invoice[]
   businessDetails: BusinessDetails
+  selectedBusinessId:string
   handleViewInvoice: (invoice: Invoice) => void
   handleMarkPaid: (invoiceId: string) => Promise<void>
   handleExtendDate: (invoiceId: string, newDate: Date) => Promise<void>
@@ -30,6 +31,7 @@ export function InvoiceHistory({
   setIsOpen = () => {},
   invoiceHistory = [],
   businessDetails = { _id: '', name: '' },
+  selectedBusinessId,
   handleViewInvoice = () => {},
   handleMarkPaid = async () => {},
   handleExtendDate = async () => {},
@@ -80,7 +82,7 @@ export function InvoiceHistory({
 
   const handleManualRefresh = async () => {
     setIsLoading(true)
-    await handleViewInvoiceHistory(businessDetails._id)
+    await handleViewInvoiceHistory(selectedBusinessId)
     setIsLoading(false)
   }
 

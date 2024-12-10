@@ -13,15 +13,19 @@ export async function sendVerificationEmail(
     verifyCode: string
 ): Promise<ApiResponse> {
     try {
+        console.log("here");
+        
         console.log(username,email,verifyCode);
         
-        await resend.emails.send({
+        const response = await resend.emails.send({
             from: 'InvoiceGen <onboarding@resend.dev>',
             to: email,
             subject: 'Verify your email for InvoiceGen',
             react: VerificationEmail({username, otp: verifyCode}),
             
         })
+        console.log(response);
+        
         console.log("hello verification send");
         console.log(verifyCode);
         

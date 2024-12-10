@@ -127,6 +127,7 @@ export default function Dashboard() {
 		handleViewInvoiceHistory,
 		handleExtendDate,
 		handleMarkPayment,
+		handleDeleteInvoice
 	} = useInvoiceHandler(
 		setInvoiceHistory,
 		setIsInvoicePreviewOpen,
@@ -225,51 +226,17 @@ export default function Dashboard() {
 	}
 
 	const handleViewInvoice = (invoice: Invoice) => {
+		console.log("current invoice here", currentInvoice);
+		
 		console.log('before enhancing', invoice)
 
-		try {
-			// Create a new object instead of using JSON.parse/stringify
-			const enrichedInvoice: Invoice = {
-				...invoice,
-				items: [...invoice.items], // Create a new array for items
-				client: undefined, // Initialize client as undefined
-			}
 
-			// Find and add client details
-			const matchingClient = clients.find(
-				(clients) => clients._id === invoice.client
-			)
-			console.log(matchingClient)
-
-			if (matchingClient) {
-				enrichedInvoice.client = matchingClient
-			}
-
-			enrichedInvoice.items = enrichedInvoice.items.map((invoiceItem) => {
-				const matchingItem = items.find(
-					(items) => items._id === invoiceItem.item
-				)
-				console.log('Matching item:', matchingItem)
-
-				if (matchingItem) {
-					return {
-						...invoiceItem,
-						name: matchingItem.name,
-						tax: matchingItem.tax || invoiceItem.tax, // Use existing tax if matching item's tax is undefined
-					}
-				}
-				return invoiceItem
-			})
-
-			console.log('Enriched Invoice:', enrichedInvoice)
-
-			setCurrentInvoice(enrichedInvoice)
+			setCurrentInvoice(invoice)
+			
+			
 			setIsInvoicePreviewOpen(true)
 			setIsViewHistoryInvoice(true)
-		} catch (error) {
-			console.error('Error processing invoice:', error)
-			// Handle error appropriately (maybe show a notification to user)
-		}
+		
 	}
 
 	return (
@@ -277,6 +244,7 @@ export default function Dashboard() {
 			<Header
 				userName={userName}
 				businessDetails={businessDetails}
+				selectedBusinessId={selectedBusinessId}
 				invoiceHistory={invoiceHistory}
 				handleViewInvoiceHistory={handleViewInvoiceHistory}
 				handleViewInvoice={handleViewInvoice}
@@ -298,7 +266,9 @@ export default function Dashboard() {
 						onBusinessChange={handleBusinessChange}
 					/>
 				</div>
-				<DashboardCards />
+				<DashboardCards 
+				
+				/>
 				<div className="grid gap-6 md:grid-cols-3">
 					<InvoiceGeneration
 						isInvoiceOpen={isInvoiceOpen}
@@ -358,6 +328,7 @@ export default function Dashboard() {
 				handleEditItem={handleEditItem}
 			/>
 			<InvoicePreview
+			    selectedBusinessId={selectedBusinessId}
 				isInvoicePreviewOpen={isInvoicePreviewOpen}
 				setIsInvoicePreviewOpen={setIsInvoicePreviewOpen}
 				currentInvoice={currentInvoice}
@@ -367,6 +338,7 @@ export default function Dashboard() {
 				onEdit={handleEditInvoice}
 				onSave={handleSaveInvoice}
 				onClose={handleCloseInvoicePreview}
+				onDelete={handleDeleteInvoice}
 				clients={clients}
 				setInvoiceHistory={setInvoiceHistory}
 				setCurrentInvoice={setCurrentInvoice}

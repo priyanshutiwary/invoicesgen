@@ -17,7 +17,7 @@ interface Client {
   _id: string
   name: string
   contact: string
-  gstNumber: string
+  gst_number: string
 }
 
 interface Item {
@@ -37,6 +37,7 @@ interface InvoiceItem {
 
 interface Invoice {
   invoice_id: string
+  clientStatus:string
   clientId: string
   items: InvoiceItem[]
   total: number
@@ -188,6 +189,26 @@ export function InvoiceGeneration({
   const handleCreateInvoice = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
+    const phoneRegex = /^[0-9]{10}$/;
+    if (isNewClient && !phoneRegex.test(newClient.contact)) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a valid phone number (10 digits). Example: 1234567890',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    const gstRegex = /^[0-9]{2}[A-Z]{4}[0-9]{4}[A-Z][0-9A-Z]{3}$/;
+    if (isNewClient && !gstRegex.test(newClient.gstNumber)) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a valid GST number. Example: 12ABCDE1234F1Z5',
+        variant: 'destructive',
+      })
+      return
+    }
+
     if (!selectedClientId && !isNewClient) {
       toast({
         title: 'Error',
@@ -228,7 +249,8 @@ export function InvoiceGeneration({
 
     const invoiceData: Invoice = {
       invoice_id: Date.now().toString(),
-      clientId: isNewClient ? 'new' : selectedClientId,
+      clientStatus: isNewClient ? "new": "existing",
+      clientId: isNewClient ? '' : selectedClientId,
       items: invoiceItems,
       total: calculateTotal(),
       paymentStatus: paymentStatus,
@@ -236,9 +258,15 @@ export function InvoiceGeneration({
       billDate: billDate,
       isItemwiseTax: isItemwiseTax,
       totalTaxRate: totalTaxRate,
-      client: matchingClient,
+      client: isNewClient ? {
+        _id: `new-${Date.now()}`,
+        name: newClient.name,
+        contact: newClient.contact,
+        gst_number: newClient.gstNumber
+      } : matchingClient,
     }
-
+    console.log("invoice data",invoiceData);
+    
     setCurrentInvoice(invoiceData)
     setIsInvoiceOpen(false)
     setIsInvoicePreviewOpen(true)
@@ -527,7 +555,7 @@ export function InvoiceGeneration({
                           value={selectedItem?.name || ''}
                           onChange={(e) =>
                             setSelectedItem((prev) =>
-                              prev ? { ...prev, name: e.target.value } : null
+                              prev ? { ...prev, name: e.target.value } : { _id: `temp-${Date.now()}`, name: e.target.value, price: 0, tax: 0 }
                             )
                           }
                           className="text-xs md:text-sm dark:bg-gray-800 dark:border-gray-700"
@@ -565,7 +593,7 @@ export function InvoiceGeneration({
                         value={selectedItem?.price || ''}
                         onChange={(e) =>
                           setSelectedItem((prev) =>
-                            prev ? { ...prev, price: parseFloat(e.target.value) } : null
+                            prev ? { ...prev, price: parseFloat(e.target.value) } : { _id: `temp-${Date.now()}`, name: '', price: parseFloat(e.target.value), tax: 0 }
                           )
                         }
                         readOnly={!isManualEntry}
@@ -578,7 +606,7 @@ export function InvoiceGeneration({
                           value={selectedItem?.tax || 0}
                           onChange={(e) =>
                             setSelectedItem((prev) =>
-                              prev ? { ...prev, tax: parseFloat(e.target.value) } : null
+                              prev ? { ...prev, tax: parseFloat(e.target.value) } : { _id: `temp-${Date.now()}`, name: '', price: 0, tax: parseFloat(e.target.value) }
                             )
                           }
                           readOnly={!isManualEntry}
