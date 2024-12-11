@@ -199,6 +199,8 @@ export function InvoiceGeneration({
       return
     }
 
+    // CommenTING out GST number validation FOR NOW
+    /*
     const gstRegex = /^[0-9]{2}[A-Z]{4}[0-9]{4}[A-Z][0-9A-Z]{3}$/;
     if (isNewClient && !gstRegex.test(newClient.gstNumber)) {
       toast({
@@ -208,6 +210,7 @@ export function InvoiceGeneration({
       })
       return
     }
+    */
 
     if (!selectedClientId && !isNewClient) {
       toast({

@@ -91,12 +91,26 @@ export default function Dashboard() {
 	})
 
 	const { toPDF, targetRef } = usePDF({ filename: 'invoice.pdf' })
-
+     
+	const {
+		handleSaveInvoice,
+		handleViewInvoiceHistory,
+		handleExtendDate,
+		handleMarkPayment,
+		handleDeleteInvoice
+	} = useInvoiceHandler(
+		setInvoiceHistory,
+		setIsInvoicePreviewOpen,
+		setCurrentInvoice
+	)
+	
 	const {
 		handleBusinessDetailsChange,
 		handleSaveBusinessDetails,
 		handleBusinessChange,
 		handleDeleteBusiness,
+		
+
 	} = useBusinessHandlers(
 		setBusinessDetails,
 		setSelectedBusinessId,
@@ -104,7 +118,8 @@ export default function Dashboard() {
 		setItems,
 		setInvoiceHistory,
 		businessDetails,
-		user_id
+		user_id,
+		handleViewInvoiceHistory
 	)
 	const { handleAddClient, handleEditClient, handleDeleteClient } =
 		useClientHandlers(
@@ -122,17 +137,7 @@ export default function Dashboard() {
 		setIsEditItemOpen,
 		setEditingItem
 	)
-	const {
-		handleSaveInvoice,
-		handleViewInvoiceHistory,
-		handleExtendDate,
-		handleMarkPayment,
-		handleDeleteInvoice
-	} = useInvoiceHandler(
-		setInvoiceHistory,
-		setIsInvoicePreviewOpen,
-		setCurrentInvoice
-	)
+	
 	const {
 		isCreateBusinessOpen,
 		setIsCreateBusinessOpen,

@@ -3,7 +3,6 @@ import axios from 'axios'
 import { toast } from "@/components/ui/use-toast"
 import { ApiResponse } from '@/backend/types/ApiResponse'
 import { BusinessDetails, Business, Client, Item, Invoice } from '@/backend/types/type'
-
 export const useBusinessHandlers = (
   setBusinessDetails: React.Dispatch<React.SetStateAction<BusinessDetails>>,
   setSelectedBusinessId: React.Dispatch<React.SetStateAction<string>>,
@@ -11,7 +10,8 @@ export const useBusinessHandlers = (
   setItems: React.Dispatch<React.SetStateAction<Item[]>>,
   setInvoiceHistory: React.Dispatch<React.SetStateAction<Invoice[]>>,
   businessDetails,
-  user_id
+  user_id,
+  handleViewInvoiceHistory
 ) => {
   const handleBusinessDetailsChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setBusinessDetails(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -87,7 +87,9 @@ export const useBusinessHandlers = (
     setInvoiceHistory([]);
     
     fetchBusinessDetails(businessId);
-    console.log(businessId);
+    handleViewInvoiceHistory(businessId);
+    
+    
     
   }, [setSelectedBusinessId, setBusinessDetails, setClients, setItems, setInvoiceHistory, fetchBusinessDetails])
 

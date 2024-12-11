@@ -1,5 +1,3 @@
-
-
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
@@ -47,6 +45,7 @@ export function InvoiceHistory({
     key: 'invoice_number',
     direction: 'descending'
   })
+  const [searchType, setSearchType] = useState<'number' | 'id'>('number')
 
   const sortInvoices = useCallback((invoices: Invoice[]) => {
     return [...invoices].sort((a, b) => {
@@ -73,12 +72,12 @@ export function InvoiceHistory({
   useEffect(() => {
     if (Array.isArray(invoiceHistory)) {
       const filtered = invoiceHistory.filter(invoice => 
-        invoice?.invoice_number?.toLowerCase().includes(searchTerm.toLowerCase())
+        (searchType === 'number' ? invoice?.invoice_number : invoice?._id)?.toLowerCase().includes(searchTerm.toLowerCase())
       )
       const sortedAndFiltered = sortInvoices(filtered)
       setFilteredInvoices(sortedAndFiltered)
     }
-  }, [invoiceHistory, searchTerm, sortInvoices])
+  }, [invoiceHistory, searchTerm, searchType, sortInvoices])
 
   const handleManualRefresh = async () => {
     setIsLoading(true)
@@ -134,16 +133,29 @@ export function InvoiceHistory({
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
-            <div className="relative w-full sm:w-64">
+            <div className="relative w-full sm:w-128">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
               <Input
                 type="text"
-                placeholder="Search by invoice number/id ..."
+                placeholder="Search by invoice number"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
               />
             </div>
+            {/* <Select
+              value={searchType}
+              onValueChange={setSearchType}
+              className="sm:w-24"
+            >
+              <SelectTrigger className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100">
+                <SelectValue placeholder="Search by" />
+              </SelectTrigger>
+              <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                <SelectItem value="number" className="dark:text-gray-100">Invoice Number</SelectItem>
+                <SelectItem value="id" className="dark:text-gray-100">Invoice ID</SelectItem>
+              </SelectContent>
+            </Select> */}
             <div className="flex items-center space-x-2">
               <Select
                 value={sortConfig.key}

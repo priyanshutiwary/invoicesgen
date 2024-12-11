@@ -86,8 +86,8 @@ export function Header({
       setIsSheetOpen(false);
     }
     setIsInvoiceHistoryOpen(true);
-    if (businessDetails._id) {
-      await handleViewInvoiceHistory(businessDetails._id);
+    if (selectedBusinessId) {
+      await handleViewInvoiceHistory(selectedBusinessId);
     }
   };
 
