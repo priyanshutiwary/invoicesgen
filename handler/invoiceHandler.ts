@@ -4,6 +4,7 @@ import { Invoice } from '@/backend/types/type'
 
 export const useInvoiceHandler = (
   setInvoiceHistory: React.Dispatch<React.SetStateAction<Invoice[]>>,
+  setIncoimgDuePayment: React.Dispatch<React.SetStateAction<Invoice[]>>,
   setIsInvoicePreviewOpen: React.Dispatch<React.SetStateAction<boolean>>,
   setCurrentInvoice: React.Dispatch<React.SetStateAction<Invoice | null>>
 ) => {
@@ -50,6 +51,12 @@ export const useInvoiceHandler = (
       const response = await axios.get(`/api/setInvoices?businessId=${businessId}`)
       if (response.data.success) {
         setInvoiceHistory(response.data.data)
+        console.log("printing response",response.data.data);
+        
+        const pendingPayments = response.data.data.filter(invoice => invoice.paymentStatus !== 'paid');
+        setIncoimgDuePayment(pendingPayments);
+        
+        
       } else {
         throw new Error(response.data.message || 'Failed to fetch invoice history')
       }
@@ -63,7 +70,6 @@ export const useInvoiceHandler = (
     }
   }
 
-  
 
   const handleViewInvoice = (invoice: Invoice) => {
     setCurrentInvoice(invoice)

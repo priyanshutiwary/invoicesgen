@@ -97,21 +97,20 @@ const OTPVerification = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-100 to-white">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md relative">
+    <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <div className="w-full max-w-md p-8 space-y-6 bg-gray-800 rounded-lg shadow-md relative">
         <Button
           variant="ghost"
           onClick={() => router.push('/sign-in')}
-          className="absolute top-4 left-4"
+          className="absolute top-4 left-4 text-gray-200"
           aria-label="Go back to login"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Verify Your Account</h1>
-          <p className="text-gray-500">We&apos;ve sent a code to your email. Please enter it below.</p>
-          {/* <p className="text-sm text-gray-400">Time remaining: {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}</p> */}
+          <h1 className="text-3xl font-bold text-gray-100">Verify Your Account</h1>
+          <p className="text-gray-300">We&apos;ve sent a code to your email. Please enter it below.</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex justify-center space-x-2">
@@ -128,12 +127,12 @@ const OTPVerification = () => {
                 ref={(el) => {
                   inputRefs.current[index] = el;
                 }}
-                className="w-12 h-12 text-center text-2xl"
+                className="w-12 h-12 text-center text-2xl text-gray-200 bg-gray-700 border border-gray-600"
                 aria-label={`Digit ${index + 1}`}
               />
             ))}
           </div>
-          <Button className="w-full" type="submit" disabled={isVerifying || otp.some(v => v === '')}>
+          <Button className="w-full bg-blue-600 text-white" type="submit" disabled={isVerifying || otp.some(v => v === '')}>
             {isVerifying ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -149,7 +148,7 @@ const OTPVerification = () => {
             variant="link" 
             onClick={handleResend} 
             disabled={resendCooldown > 0}
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-blue-400 hover:underline"
           >
             {resendCooldown > 0 ? `Resend OTP in ${resendCooldown}s` : 'Resend OTP'}
           </Button>

@@ -18,7 +18,7 @@ export async function sendVerificationEmail(
         console.log(username,email,verifyCode);
         
         const response = await resend.emails.send({
-            from: 'InvoiceGen <onboarding@resend.dev>',
+            from: 'InvoiceGen <Otp_verification@invoicesgen.com>',
             to: email,
             subject: 'Verify your email for InvoiceGen',
             react: VerificationEmail({username, otp: verifyCode}),
