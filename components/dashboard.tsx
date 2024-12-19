@@ -34,6 +34,7 @@ import {
 	InvoiceItem,
 	UserProfile,
 } from '@/backend/types/type'
+import { useRouter } from 'next/router'
 
 export default function Dashboard() {
 	const { data: session } = useSession()
@@ -54,7 +55,7 @@ export default function Dashboard() {
 	const [clients, setClients] = useState<Client[]>([])
 	const [items, setItems] = useState<Item[]>([])
 	const [invoiceHistory, setInvoiceHistory] = useState<Invoice[]>([])
-    const [incomingDuePayment,setIncomingDuePayment] = useState<Invoice[]>([])
+	const [incomingDuePayment, setIncomingDuePayment] = useState<Invoice[]>([])
 	const [isProfileOpen, setIsProfileOpen] = useState(false)
 	const [isInvoiceOpen, setIsInvoiceOpen] = useState(false)
 	const [isClientOpen, setIsClientOpen] = useState(false)
@@ -90,13 +91,13 @@ export default function Dashboard() {
 	})
 
 	const { toPDF, targetRef } = usePDF({ filename: 'invoice.pdf' })
-     
+
 	const {
 		handleSaveInvoice,
 		handleViewInvoiceHistory,
 		handleExtendDate,
 		handleMarkPayment,
-		handleDeleteInvoice
+		handleDeleteInvoice,
 	} = useInvoiceHandler(
 		setInvoiceHistory,
 		setIncomingDuePayment,
@@ -108,8 +109,6 @@ export default function Dashboard() {
 		handleSaveBusinessDetails,
 		handleBusinessChange,
 		handleDeleteBusiness,
-		
-
 	} = useBusinessHandlers(
 		setBusinessDetails,
 		setSelectedBusinessId,
@@ -136,7 +135,7 @@ export default function Dashboard() {
 		setIsEditItemOpen,
 		setEditingItem
 	)
-	
+
 	const {
 		isCreateBusinessOpen,
 		setIsCreateBusinessOpen,
@@ -146,6 +145,7 @@ export default function Dashboard() {
 		handleSaveNewBusiness,
 		isLoading,
 	} = useCreateBusinessHandler(user_id, setBusinesses, setSelectedBusinessId)
+
 
 	useEffect(() => {
 		const fetchUserId = async () => {
@@ -177,8 +177,8 @@ export default function Dashboard() {
 				const response = await axios.get<ApiResponse>(
 					`/api/getUserBusinesses?user_id=${user_id}`
 				)
-				console.log(response);
-				
+				console.log(response)
+
 				setBusinesses(response.data.businesses)
 
 				if (response.data.businesses.length > 0 && !selectedBusinessId) {
@@ -196,7 +196,6 @@ export default function Dashboard() {
 
 					setClients(response.data.businesses[0].clients)
 					setItems(response.data.businesses[0].items)
-					
 				}
 			} catch (error) {
 				console.error('Error fetching businesses', error)
@@ -230,17 +229,14 @@ export default function Dashboard() {
 	}
 
 	const handleViewInvoice = (invoice: Invoice) => {
-		console.log("current invoice here", currentInvoice);
-		
+		console.log('current invoice here', currentInvoice)
+
 		console.log('before enhancing', invoice)
 
+		setCurrentInvoice(invoice)
 
-			setCurrentInvoice(invoice)
-			
-			
-			setIsInvoicePreviewOpen(true)
-			setIsViewHistoryInvoice(true)
-		
+		setIsInvoicePreviewOpen(true)
+		setIsViewHistoryInvoice(true)
 	}
 
 	return (
@@ -263,23 +259,25 @@ export default function Dashboard() {
 			/>
 			<main className="flex-1 p-4 md:p-6 space-y-6 overflow-auto dark:bg-gray-800">
 				<div className="flex justify-between items-center">
-					<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+					<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+						Dashboard
+					</h1>
 					<BusinessSelector
 						businesses={businesses}
 						selectedBusinessId={selectedBusinessId}
 						onBusinessChange={handleBusinessChange}
 					/>
 				</div>
-                <button 
+				<button
 					className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
-					onClick={() => window.location.href = '/pendingPayments'}
-				>
+					onClick={() => {
+                        
+                        window.location.href = `/pendingPayments?user_id=${user_id}&selectedBusinessId=${selectedBusinessId}`; // Pass both parameters
+                    }}>
 					View Pending Payments
 				</button>
-                
-				<DashboardCards 
-				
-				/>
+
+				<DashboardCards />
 				<div className="grid gap-6 md:grid-cols-3">
 					<InvoiceGeneration
 						isInvoiceOpen={isInvoiceOpen}
@@ -339,7 +337,7 @@ export default function Dashboard() {
 				handleEditItem={handleEditItem}
 			/>
 			<InvoicePreview
-			    selectedBusinessId={selectedBusinessId}
+				selectedBusinessId={selectedBusinessId}
 				isInvoicePreviewOpen={isInvoicePreviewOpen}
 				setIsInvoicePreviewOpen={setIsInvoicePreviewOpen}
 				currentInvoice={currentInvoice}
