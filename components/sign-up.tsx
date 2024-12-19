@@ -39,7 +39,7 @@ export default function SignUpPage() {
         description: response.data.message,
       });
 
-      router.replace(`/verify/${data.username}`); // {{ edit_6 }} Use data.username for routing
+      router.replace(`/verify/${data.contact}`); // {{ edit_6 }} Use data.username for routing
 
       setIsSubmitting(false);
     } catch (error) {

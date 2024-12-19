@@ -6,9 +6,14 @@ export async function POST(request: Request) {
   await connectDB();
 
   try {
-    const { username, code } = await request.json();
-    const decodedUsername = decodeURIComponent(username);
-    const user = await User.findOne({ username: decodedUsername });
+    const { contact, code } = await request.json();
+    // const decodedUsername = decodeURIComponent(username);
+    const decodedContact = decodeURIComponent(contact)
+    console.log(decodedContact);
+    // console.log(decodedUsername);
+    
+    
+    const user = await User.findOne({ contact: decodedContact });
 
     if (!user) {
       return Response.json(
@@ -16,6 +21,9 @@ export async function POST(request: Request) {
         { status: 404 }
       );
     }
+    console.log(code);
+    console.log(user.verifyCode);
+    
 
     // Check if the code is correct and not expired
     const isCodeValid = user.verifyCode === code;

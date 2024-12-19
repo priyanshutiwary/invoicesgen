@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2, ArrowLeft } from 'lucide-react'
+import { Loader2, ArrowLeft, Contact } from 'lucide-react'
 import { useParams,useRouter } from 'next/navigation'
 import axios, { AxiosError } from 'axios';
 import { useToast } from '@/hooks/use-toast'
@@ -56,9 +56,11 @@ const OTPVerification = () => {
     setIsVerifying(true)
     const enteredOtp = otp.join('')
     console.log('Verifying OTP:', enteredOtp)
+    console.log(params);
+    
     try {
         const response = await axios.post<ApiResponse>(`/api/verify-code`, {
-          username: params.username,
+          contact: params.username,
           code: enteredOtp,
         });
   
