@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, ArrowLeft, Lock } from 'lucide-react'
@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { toast } from '@/components/ui/use-toast'
 
-export default function PasswordReset() {
+// Separate the form logic into a client component
+function PasswordResetForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -38,7 +39,6 @@ export default function PasswordReset() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Basic validation
     if (password.length < 8) {
       toast({
         title: "Invalid Password",
@@ -188,3 +188,15 @@ export default function PasswordReset() {
   )
 }
 
+
+export default function PasswordReset() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    }>
+      <PasswordResetForm />
+    </Suspense>
+  )
+}
