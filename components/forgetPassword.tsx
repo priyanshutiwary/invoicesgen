@@ -10,7 +10,13 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import {ArrowLeft } from "lucide-react"
+import axios from 'axios' 
+import { AxiosError } from 'axios' 
 
+interface ApiResponse {
+  message: string;
+  // Add other properties as needed
+}
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -36,13 +42,14 @@ export default function ForgotPassword() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
+      console.log(data);
+      
       setIsLoading(true)
-      // Simulate API call to send OTP to the provided email
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await axios.post<ApiResponse>('/api/passResetCode', data); 
 
       toast({
-        title: 'OTP Sent',
-        description: 'An OTP has been sent to your email address for verification.',
+        title: 'Instruction send',
+        description: 'Instruction has been send to you mail/mobile ',
         variant: 'success',
       })
     } catch (error) {

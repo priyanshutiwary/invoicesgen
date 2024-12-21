@@ -63,10 +63,11 @@ const OTPVerification = () => {
           contact: params.username,
           code: enteredOtp,
         });
-  
+        
+        if (response.status ==200)
         toast({
-          title: 'Success',
-          description: response.data.message,
+          title: 'Otp Verified',
+          description: "Otp verification is succesfull for your account",
         });
   
         router.replace('/sign-in');
