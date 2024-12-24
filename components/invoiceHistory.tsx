@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, RefreshCw, Eye, DollarSign, CalendarIcon, ArrowUpDown } from "lucide-react"
 import { Invoice, BusinessDetails } from '@/backend/types/type'
 import { motion, AnimatePresence } from 'framer-motion'
-
+// import {handleMarkPaid} from '@/handler/invoiceHandler'
 interface InvoiceHistoryProps {
   isOpen: boolean
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>

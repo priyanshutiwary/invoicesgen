@@ -62,12 +62,12 @@ export function BusinessProfile({
   }, []);
 
   const handleDeleteConfirm = useCallback(() => {
-    if (deleteConfirmation === `delete/${localBusinessDetails.name}`) {
-      console.log(businessDetails);
-      
-      handleDeleteBusiness();
+    // if (deleteConfirmation === `${localBusinessDetails.name}`) {
+    // console.log(localBusinessDetails);
+    
+      handleDeleteBusiness(businessDetails._id);
       setIsDeleteDialogOpen(false);
-    }
+    
   }, [deleteConfirmation, localBusinessDetails.name, handleDeleteBusiness]);
 
   return (

@@ -89,6 +89,7 @@ export async function GET(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const business_id = searchParams.get('business_id');
+    console.log("cksomcko",business_id);
     
     if (!business_id) {
         return Response.json(

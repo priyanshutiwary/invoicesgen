@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import PendingPayments from '@/components/paymentDashboard'
+import PendingPayments from '@/components/pendingPayments/dashboard'
 const page = () => {
   return (
     <div>

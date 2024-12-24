@@ -45,6 +45,7 @@ export const useBusinessHandlers = (
       if (response.data && response.data.businesses) {
         setBusinessDetails({
           ...businessDetails,
+          _id: response.data.businesses[0]._id,
           name: response.data.businesses[0].name,
           contact: response.data.businesses[0].contact,
           address: response.data.businesses[0].address,
@@ -73,8 +74,8 @@ export const useBusinessHandlers = (
 
   const handleBusinessChange = useCallback((businessId: string) => {
     setSelectedBusinessId(businessId);
-    
     setBusinessDetails({
+      _id: "",
       userId: "",
       name: "",
       email: "",
@@ -97,7 +98,7 @@ export const useBusinessHandlers = (
     try {
       
       
-      console.log(business_id);
+      
       const response = await axios.delete<ApiResponse>(`/api/getBusinessDetails?business_id=${business_id}`);
       
       if (response.data && response.data.message) {

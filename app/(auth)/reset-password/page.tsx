@@ -97,7 +97,7 @@ function PasswordResetForm() {
       <Card className="w-full max-w-md bg-white shadow-md dark:bg-gray-900">
         <CardHeader className="space-y-6 pb-4 pt-6">
           <Link
-            href="/login"
+            href="/sign-in"
             className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
